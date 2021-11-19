@@ -57,7 +57,7 @@ types:
          u = xbest + F(x1 - x2) + F(x3 - x4)
      DE/current-to-best/1:
          u = x + F(xbest - x1) + F(x2 - x3)
-     DE/current-to-pbest/1:
+     DE/current-to-pbest/2:
          u = x + F(xp - x1) + F(x2 - x3)
          where xp is a random individual from the top 100*p % of the population based on fitness 
          (p in (0, 1])
@@ -80,6 +80,9 @@ obj_func = lambda x: sum(x**2)/len(x)
 
 func_bounds = [(-5,5)]
 
+def mutation(individual_selection_type, n_difference_vectors):
+    
+
 def crossover(crossover_type, mutant, individual, dimensions, crossover_probability):
     if crossover_type == 'exp':
         L = 0
@@ -94,21 +97,23 @@ def crossover(crossover_type, mutant, individual, dimensions, crossover_probabil
     return indexes
             
 
-def mutation(de_type):
-    _, individual_selection, n_diff_vectors, crossover_type, = de_type.split("/")
-    n_diff_vectors = int(n_diff_vectors)
+
     
 
 
 def differential_evolution(obj_func, 
                            func_bounds, 
-                           de_type, 
+                           de_type='DE/rand/1/bin', 
                            mutation_factor=0.8, 
                            crossover_probability=0.7, 
                            population_size=20, 
                            iterations=1000, 
                            runs=1, 
                            verbose=0):
+    
+    _, individual_selection_type, n_difference_vectors, crossover_type, = de_type.split("/")
+    n_difference_vectors = int(n_difference_vectors)
+    
     dimensions = len(func_bounds)
     population_normalized = np.random.rand(d0=population_size, d1=dimensions)
     min_bound, max_bound = np.asarray(func_bounds).T
@@ -125,6 +130,7 @@ def differential_evolution(obj_func,
             # Crossover
             crossover_vector = np.random.rand(dimensions) < crossover_probability
             offspring_normalized = np.where(condition=crossover_vector, x=mutant, y=population_normalized[j])
+            
             offspring_denormalized = min_bound + offspring_normalized * dimension_range
             offspring_fitness = obj_func(offspring_denormalized)
             if offspring_fitness < fitness[j]:
