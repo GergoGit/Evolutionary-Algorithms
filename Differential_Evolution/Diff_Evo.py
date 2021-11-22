@@ -55,7 +55,9 @@ types:
          u = xbest + F(x2 - x3)
      DE/best/2:
          u = xbest + F(x1 - x2) + F(x3 - x4)
-     DE/current-to-best/1:
+     DE/current-to-rand/2:
+         u = x + F(x1 - x2) + F(x3 - x4)
+     DE/current-to-best/2:
          u = x + F(xbest - x1) + F(x2 - x3)
      DE/current-to-pbest/2:
          u = x + F(xp - x1) + F(x2 - x3)
@@ -76,69 +78,94 @@ ODE - OPPOSITION-BASED DE
 
 import numpy as np
 
-obj_func = lambda x: sum(x**2)/len(x)
 
-func_bounds = [(-5,5)]
 
 def mutation(individual_selection_type, n_difference_vectors):
-    
+    aa
 
-def crossover(crossover_type, mutant, individual, dimensions, crossover_probability):
+def crossover(crossover_type, dimensions, crossover_probability):
+    if crossover_type == 'bin':
+        crossover_vector = np.random.rand(dimensions) < crossover_probability
     if crossover_type == 'exp':
         L = 0
         j = np.random.randint(low=0, high=dimensions)
         random_number = np.random.rand()
-        indexes = []
+        crossover_vector = np.asarray([False] * dimensions)
         while random_number < crossover_probability and L < dimensions:
             L += 1
-            j = dimensions % (j+1)
+            j = (j+1) % dimensions
             random_number = np.random.rand()
-            indexes.append(j)
-    return indexes
-            
+            crossover_vector[j] = True
+    return crossover_vector
 
 
-    
-
-
-def differential_evolution(obj_func, 
+def differential_evolution(objection_func, 
                            func_bounds, 
                            de_type='DE/rand/1/bin', 
                            mutation_factor=0.8, 
                            crossover_probability=0.7, 
                            population_size=20, 
-                           iterations=1000, 
+                           generations=1000, 
                            runs=1, 
+                           patience=20,
+                           epsilon=1E-5,
                            verbose=0):
     
     _, individual_selection_type, n_difference_vectors, crossover_type, = de_type.split("/")
-    n_difference_vectors = int(n_difference_vectors)
+    # n_difference_vectors = int(n_difference_vectors)
     
     dimensions = len(func_bounds)
-    population_normalized = np.random.rand(d0=population_size, d1=dimensions)
     min_bound, max_bound = np.asarray(func_bounds).T
     dimension_range = np.fabs(min_bound - max_bound)
-    population_denormalized = min_bound + population_normalized * dimension_range
-    fitness = np.asarray([obj_func(individual) for individual in population_denormalized])
-    best_idx = np.argmin(fitness)
-    best = population_denormalized[best_idx]
-    for i in range(iterations):
-        for j in range(population_size):
-            idxs = [idx for idx in range(population_size) if idx != j]
-            a, b, c = population_normalized[np.random.choice(idxs, 3, replace = False)]
-            mutant = np.clip(a + mutation_factor * (b - c), a_min=0, a_max=1)
-            # Crossover
-            crossover_vector = np.random.rand(dimensions) < crossover_probability
-            offspring_normalized = np.where(condition=crossover_vector, x=mutant, y=population_normalized[j])
+    for run_num in range(runs):
+        population_normalized = np.random.rand(population_size, dimensions)
+        population_denormalized = min_bound + population_normalized * dimension_range
+        fitness = np.asarray([obj_func(individual) for individual in population_denormalized])
+        best_idx = np.argmin(fitness)
+        best = population_denormalized[best_idx]
+        best_list = [best]
+        for gen_num in range(generations):
+            for j in range(population_size):
+                idxs = [idx for idx in range(population_size) if idx != j]
+                a, b, c = population_normalized[np.random.choice(idxs, 3, replace = False)]
+                mutant = np.clip(a + mutation_factor * (b - c), a_min=0, a_max=1)
+                # Crossover
+                crossover_vector = crossover(crossover_type, dimensions, crossover_probability)
+                offspring_normalized = np.where(crossover_vector, mutant, population_normalized[j])                
+                offspring_denormalized = min_bound + offspring_normalized * dimension_range
+                offspring_fitness = obj_func(offspring_denormalized)
+                if offspring_fitness < fitness[j]:
+                    fitness[j] = offspring_fitness
+                    population_normalized[j] = offspring_normalized
+                    if offspring_fitness < fitness[best_idx]:
+                        best_idx = j
+                        best = offspring_denormalized            
             
-            offspring_denormalized = min_bound + offspring_normalized * dimension_range
-            offspring_fitness = obj_func(offspring_denormalized)
-            if offspring_fitness < fitness[j]:
-                fitness[j] = offspring_fitness
-                population_normalized[j] = offspring_normalized
-                if offspring_fitness < fitness[best_idx]:
-                    best_idx = j
-                    best = offspring_denormalized
-        yield best, fitness[best_idx]
+            if patience != None and gen_num >= patience:
+                if all(np.asarray([element-best for element in best_list[-patience:]]) < epsilon):
+                    break
+            best_list.append(best)
+            yield run_num, gen_num, best, fitness[best_idx]    
         
-        
+
+if __name__ == "__main__":
+    
+    obj_func = lambda x: sum(x**2)/len(x)
+    func_bounds = [(-500,500)]
+    runs = 2
+    result = list(differential_evolution(objection_func=obj_func, func_bounds=func_bounds, runs=runs, generations=300))
+    result[-1]
+    result[-1][0]
+    
+    run_num = 0
+    import matplotlib.pyplot as plt
+    run, gen, x, f = zip(*result)
+    run, gen, x, f = zip(*[element for element in result if element[0]==run_num])
+    plt.yscale('log', base=2) 
+    plt.plot(f)
+    
+    for run_num in range(runs):
+        run, gen, x, f = zip(*[element for element in result if element[0]==run_num])
+        plt.yscale('log', base=2) 
+        plt.plot(f, label='run_num={}'.format(run_num))
+    plt.legend()
