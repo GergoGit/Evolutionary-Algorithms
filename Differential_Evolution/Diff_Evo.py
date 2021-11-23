@@ -79,6 +79,28 @@ ODE - OPPOSITION-BASED DE
 import numpy as np
 
 
+# opposision based sampling
+func_bounds = [(-50,50),(-1,1),(0,5)]
+dimensions = len(func_bounds)
+min_bound, max_bound = np.asarray(func_bounds).T
+dimension_range = np.fabs(min_bound - max_bound)
+population_normalized = np.random.rand(population_size, dimensions)
+population_denormalized = min_bound + population_normalized * dimension_range
+
+ob_population_denormalized = np.zeros_like(population_denormalized)
+for i in range(population_size):
+    for j in range(dimensions):
+        ob_population_denormalized[i,j] = min_bound[j] + max_bound[j] - population_denormalized[i,j]
+        
+def ob_sampling(population_denormalized, obj_func, min_bound, max_bound, population_size, dimensions, n_best):
+    ob_population_denormalized = np.zeros_like(population_denormalized)
+    for i in range(population_size):
+        for j in range(dimensions):
+            ob_population_denormalized[i,j] = min_bound[j] + max_bound[j] - population_denormalized[i,j]
+    rand_and_ob = np.concatenate((population_denormalized, ob_population_denormalized), axis=0)
+    fitness = np.asarray([obj_func(individual) for individual in rand_and_ob])
+    n_best_idx = fitness[fitness.argsort()[-n_best:]]
+    return rand_and_ob[n_best_idx]
 
 def mutation(individual_selection_type, n_difference_vectors):
     aa
@@ -101,14 +123,14 @@ def crossover(crossover_type, dimensions, crossover_probability):
 
 def differential_evolution(objection_func, 
                            func_bounds, 
-                           de_type='DE/rand/1/bin', 
+                           de_type='DE/rand/1/exp', 
                            mutation_factor=0.8, 
                            crossover_probability=0.7, 
-                           population_size=20, 
+                           population_size=30, 
                            generations=1000, 
                            runs=1, 
                            patience=20,
-                           epsilon=1E-5,
+                           epsilon=1E-10,
                            verbose=0):
     
     _, individual_selection_type, n_difference_vectors, crossover_type, = de_type.split("/")
@@ -151,8 +173,8 @@ def differential_evolution(objection_func,
 if __name__ == "__main__":
     
     obj_func = lambda x: sum(x**2)/len(x)
-    func_bounds = [(-500,500)]
-    runs = 2
+    func_bounds = [(-50,50)]
+    runs = 5
     result = list(differential_evolution(objection_func=obj_func, func_bounds=func_bounds, runs=runs, generations=300))
     result[-1]
     result[-1][0]
