@@ -86,11 +86,6 @@ min_bound, max_bound = np.asarray(func_bounds).T
 dimension_range = np.fabs(min_bound - max_bound)
 population_normalized = np.random.rand(population_size, dimensions)
 population_denormalized = min_bound + population_normalized * dimension_range
-
-ob_population_denormalized = np.zeros_like(population_denormalized)
-for i in range(population_size):
-    for j in range(dimensions):
-        ob_population_denormalized[i,j] = min_bound[j] + max_bound[j] - population_denormalized[i,j]
         
 def ob_sampling(population_denormalized, obj_func, min_bound, max_bound, population_size, dimensions, n_best):
     ob_population_denormalized = np.zeros_like(population_denormalized)
@@ -102,8 +97,28 @@ def ob_sampling(population_denormalized, obj_func, min_bound, max_bound, populat
     n_best_idx = fitness[fitness.argsort()[-n_best:]]
     return rand_and_ob[n_best_idx]
 
+def sampling(sampling, obj_func, min_bound, dimension_range, population_size, dimensions, n_best):
+    if sampling == None:
+        population_normalized = np.random.rand(population_size, dimensions)
+        population_denormalized = min_bound + population_normalized * dimension_range
+        fitness = np.asarray([obj_func(individual) for individual in population_denormalized])
+        best_idx = np.argmin(fitness)
+        best = population_denormalized[best_idx]
+    if sampling == 'opposition-based':
+        ob_sampling(population_denormalized, obj_func, min_bound, max_bound, population_size, dimensions, n_best)
+    return population_normalized, population_denormalized, fitness
+
 def mutation(individual_selection_type, n_difference_vectors):
-    aa
+    if individual_selection_type == 'rand':
+        n_rand = 1
+    if individual_selection_type == 'best':
+        add_best = True
+    if individual_selection_type == 'current-to-best':
+        add_best = True
+        add_current = True
+    if individual_selection_type == 'current-to-pbest':
+        add_pbest = True
+        add_current = True
 
 def crossover(crossover_type, dimensions, crossover_probability):
     if crossover_type == 'bin':
@@ -123,6 +138,7 @@ def crossover(crossover_type, dimensions, crossover_probability):
 
 def differential_evolution(objection_func, 
                            func_bounds, 
+                           # variant,
                            de_type='DE/rand/1/exp', 
                            mutation_factor=0.8, 
                            crossover_probability=0.7, 
@@ -168,7 +184,114 @@ def differential_evolution(objection_func,
                     break
             best_list.append(best)
             yield run_num, gen_num, best, fitness[best_idx]    
-        
+
+
+def ob_sampling(population_normalized, population_denormalized, obj_func, min_bound, dimension_range, population_size, dimensions):
+    opposition_normalized = np.zeros_like(population_normalized)
+    for i in range(population_size):
+        for j in range(dimensions):
+            opposition_normalized[i,j] = 1 - population_normalized[i,j]
+    opposition_denormalized = min_bound + opposition_normalized * dimension_range
+    population_and_opposition_denormalized = np.concatenate((population_denormalized, opposition_denormalized), axis=0)
+    fitness_all = np.asarray([obj_func(individual) for individual in population_and_opposition_denormalized])
+    n_best_idx = fitness_all.argsort()[:population_size]
+    new_population_normalized = np.concatenate((population_normalized, opposition_normalized), axis=0)[n_best_idx]
+    new_population_denormalized = population_and_opposition_denormalized[n_best_idx]
+    new_fitness = np.asarray([obj_func(individual) for individual in new_population_denormalized])
+    best_idx = np.argmin(new_fitness)
+    return new_population_normalized, new_population_denormalized, new_fitness, best_idx, new_population_denormalized[best_idx]
+
+
+def ob_de(objection_func, 
+            func_bounds, 
+            de_type='DE/rand/1/bin', 
+            mutation_factor=0.8, 
+            crossover_probability=0.7, 
+            jumping_rate=0.3,
+            population_size=30, 
+            generations=1000, 
+            runs=1, 
+            patience=20,
+            epsilon=1E-10,
+            verbose=0):
+    """
+    We expect it is a minimization problem.
+
+    Parameters
+    ----------
+    objection_func : TYPE
+        DESCRIPTION.
+    func_bounds : TYPE
+        DESCRIPTION.
+    de_type : TYPE, optional
+        DESCRIPTION. The default is 'DE/rand/1/exp'.
+    mutation_factor : TYPE, optional
+        DESCRIPTION. The default is 0.8.
+    crossover_probability : TYPE, optional
+        DESCRIPTION. The default is 0.7.
+    jumping_rate : TYPE, optional
+        DESCRIPTION. The default is 0.3.
+    population_size : TYPE, optional
+        DESCRIPTION. The default is 30.
+    generations : TYPE, optional
+        DESCRIPTION. The default is 1000.
+    runs : TYPE, optional
+        DESCRIPTION. The default is 1.
+    patience : TYPE, optional
+        DESCRIPTION. The default is 20.
+    epsilon : TYPE, optional
+        DESCRIPTION. The default is 1E-10.
+    verbose : TYPE, optional
+        DESCRIPTION. The default is 0.
+
+    Yields
+    ------
+    run_num : TYPE
+        DESCRIPTION.
+    gen_num : TYPE
+        DESCRIPTION.
+    best : TYPE
+        DESCRIPTION.
+    TYPE
+        DESCRIPTION.
+
+    """
+    _, individual_selection_type, n_difference_vectors, crossover_type, = de_type.split("/")
+    # n_difference_vectors = int(n_difference_vectors)
+    
+    dimensions = len(func_bounds)
+    min_bound, max_bound = np.asarray(func_bounds).T
+    dimension_range = np.fabs(min_bound - max_bound)
+    for run_num in range(runs):
+        population_normalized = np.random.rand(population_size, dimensions)
+        population_denormalized = min_bound + population_normalized * dimension_range
+        population_normalized, population_denormalized, fitness, best_idx, best = ob_sampling(population_normalized, population_denormalized, obj_func, min_bound, dimension_range, population_size, dimensions)
+        best_list = [best]
+        for gen_num in range(generations):
+            for j in range(population_size):
+                idxs = [idx for idx in range(population_size) if idx != j]
+                a, b, c = population_normalized[np.random.choice(idxs, 3, replace = False)]
+                mutant = np.clip(a + mutation_factor * (b - c), a_min=0, a_max=1)
+                # Crossover
+                crossover_vector = crossover(crossover_type, dimensions, crossover_probability)
+                offspring_normalized = np.where(crossover_vector, mutant, population_normalized[j])                
+                offspring_denormalized = min_bound + offspring_normalized * dimension_range
+                offspring_fitness = obj_func(offspring_denormalized)
+                if offspring_fitness < fitness[j]:
+                    fitness[j] = offspring_fitness
+                    population_normalized[j] = offspring_normalized
+                    if offspring_fitness < fitness[best_idx]:
+                        best_idx = j
+                        best = offspring_denormalized
+            
+            if np.random.rand() < jumping_rate:
+                population_normalized, population_denormalized, fitness, best_idx, best = ob_sampling(population_normalized, population_denormalized, obj_func, min_bound, dimension_range, population_size, dimensions)
+            
+            if patience != None and gen_num >= patience:
+                if all(np.asarray([element-best for element in best_list[-patience:]]) < epsilon):
+                    break
+            best_list.append(best)
+            yield run_num, gen_num, best, fitness[best_idx]    
 
 if __name__ == "__main__":
     
@@ -176,6 +299,7 @@ if __name__ == "__main__":
     func_bounds = [(-50,50)]
     runs = 5
     result = list(differential_evolution(objection_func=obj_func, func_bounds=func_bounds, runs=runs, generations=300))
+    result = list(ob_de(objection_func=obj_func, func_bounds=func_bounds, runs=runs, generations=300))    
     result[-1]
     result[-1][0]
     
