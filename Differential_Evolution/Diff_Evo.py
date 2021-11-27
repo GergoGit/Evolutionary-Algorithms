@@ -83,19 +83,10 @@ import numpy as np
 func_bounds = [(-50,50),(-1,1),(0,5)]
 dimensions = len(func_bounds)
 min_bound, max_bound = np.asarray(func_bounds).T
+population_size = 30
 dimension_range = np.fabs(min_bound - max_bound)
 population_normalized = np.random.rand(population_size, dimensions)
 population_denormalized = min_bound + population_normalized * dimension_range
-        
-def ob_sampling(population_denormalized, obj_func, min_bound, max_bound, population_size, dimensions, n_best):
-    ob_population_denormalized = np.zeros_like(population_denormalized)
-    for i in range(population_size):
-        for j in range(dimensions):
-            ob_population_denormalized[i,j] = min_bound[j] + max_bound[j] - population_denormalized[i,j]
-    rand_and_ob = np.concatenate((population_denormalized, ob_population_denormalized), axis=0)
-    fitness = np.asarray([obj_func(individual) for individual in rand_and_ob])
-    n_best_idx = fitness[fitness.argsort()[-n_best:]]
-    return rand_and_ob[n_best_idx]
 
 def sampling(sampling, obj_func, min_bound, dimension_range, population_size, dimensions, n_best):
     if sampling == None:
@@ -107,18 +98,60 @@ def sampling(sampling, obj_func, min_bound, dimension_range, population_size, di
     if sampling == 'opposition-based':
         ob_sampling(population_denormalized, obj_func, min_bound, max_bound, population_size, dimensions, n_best)
     return population_normalized, population_denormalized, fitness
+                
+        
 
-def mutation(individual_selection_type, n_difference_vectors):
+
+def variant_func(individual_selection_type, n_difference_vectors):
+
+    def rand_1(random_individuals, mutation_factor):
+        return np.clip(random_individuals[0] + mutation_factor * (random_individuals[1] - random_individuals[2]), a_min=0, a_max=1)
+    def rand_2(random_individuals, mutation_factor):
+        return np.clip(random_individuals[0] + mutation_factor * (random_individuals[1] - random_individuals[2]) + mutation_factor * (random_individuals[3] - random_individuals[4]), a_min=0, a_max=1)    
+    def best_1(random_individuals, best_normalized, mutation_factor):
+        return np.clip(best_normalized + mutation_factor * (random_individuals[0] - random_individuals[1]), a_min=0, a_max=1)
+    def best_2(random_individuals, best_normalized, mutation_factor):
+        return np.clip(best_normalized + mutation_factor * (random_individuals[0] - random_individuals[1]) + mutation_factor * (random_individuals[2] - random_individuals[3]), a_min=0, a_max=1)
+    def current_to_best_1(random_individuals, best_normalized, current, mutation_factor):
+        return np.clip(current + mutation_factor * (best_normalized - random_individuals[0]), a_min=0, a_max=1)
+    def current_to_best_2(random_individuals, best_normalized, current, mutation_factor):
+        return np.clip(current + mutation_factor * (best_normalized - random_individuals[0]) + mutation_factor * (random_individuals[1] - random_individuals[2]), a_min=0, a_max=1)    
+
     if individual_selection_type == 'rand':
-        n_rand = 1
+        if n_difference_vectors == 1:
+            return rand_1
+        if n_difference_vectors == 2:
+            return rand_2
     if individual_selection_type == 'best':
-        add_best = True
+        if n_difference_vectors == 1:
+            return best_1
+        if n_difference_vectors == 2:
+            return best_2        
     if individual_selection_type == 'current-to-best':
-        add_best = True
-        add_current = True
-    if individual_selection_type == 'current-to-pbest':
-        add_pbest = True
-        add_current = True
+        if n_difference_vectors == 1:
+            return current_to_best_1
+        if n_difference_vectors == 2:
+            return current_to_best_2
+        
+def input_func(individual_selection_type, n_difference_vectors, mutation_factor, population_normalized, idx, best_idx):
+    idxs = [i for i in range(population_size) if i != idx]
+    if individual_selection_type == 'rand':
+        n_rand = 2 * n_difference_vectors + 1
+        random_individuals = population_normalized[np.random.choice(idxs, n_rand, replace = False)]
+        return random_individuals, mutation_factor
+    if individual_selection_type == 'best':
+        n_rand = 2 * n_difference_vectors
+        random_individuals = population_normalized[np.random.choice(idxs, n_rand, replace = False)]
+        return random_individuals, population_normalized[best_idx], mutation_factor
+    if individual_selection_type == 'current-to-best':
+        n_rand = 2 * n_difference_vectors - 1
+        random_individuals = population_normalized[np.random.choice(idxs, n_rand, replace = False)]
+        return random_individuals, population_normalized[best_idx], population_normalized[idx], mutation_factor
+    # if individual_selection_type == 'current-to-pbest':
+    #     pass
+
+mutation = variant_func(individual_selection_type, n_difference_vectors)  
+mutant = mutation(*input_func(individual_selection_type, n_difference_vectors, mutation_factor, population_normalized, idx, best))
 
 def crossover(crossover_type, dimensions, crossover_probability):
     if crossover_type == 'bin':
@@ -139,22 +172,24 @@ def crossover(crossover_type, dimensions, crossover_probability):
 def differential_evolution(objection_func, 
                            func_bounds, 
                            # variant,
-                           de_type='DE/rand/1/exp', 
+                           de_type='DE/best/1/bin', 
                            mutation_factor=0.8, 
                            crossover_probability=0.7, 
                            population_size=30, 
                            generations=1000, 
                            runs=1, 
-                           patience=20,
+                           patience=10,
                            epsilon=1E-10,
                            verbose=0):
     
     _, individual_selection_type, n_difference_vectors, crossover_type, = de_type.split("/")
-    # n_difference_vectors = int(n_difference_vectors)
+    n_difference_vectors = int(n_difference_vectors)
     
     dimensions = len(func_bounds)
-    min_bound, max_bound = np.asarray(func_bounds).T
+    min_bound = np.asarray([min(dim) for dim in func_bounds])
+    max_bound = np.asarray([max(dim) for dim in func_bounds])
     dimension_range = np.fabs(min_bound - max_bound)
+    mutation = variant_func(individual_selection_type, n_difference_vectors)
     for run_num in range(runs):
         population_normalized = np.random.rand(population_size, dimensions)
         population_denormalized = min_bound + population_normalized * dimension_range
@@ -163,24 +198,23 @@ def differential_evolution(objection_func,
         best = population_denormalized[best_idx]
         best_list = [best]
         for gen_num in range(generations):
-            for j in range(population_size):
-                idxs = [idx for idx in range(population_size) if idx != j]
-                a, b, c = population_normalized[np.random.choice(idxs, 3, replace = False)]
-                mutant = np.clip(a + mutation_factor * (b - c), a_min=0, a_max=1)
+            for idx in range(population_size):
+                # Mutation
+                mutant = mutation(*input_func(individual_selection_type, n_difference_vectors, mutation_factor, population_normalized, idx, best_idx))
                 # Crossover
                 crossover_vector = crossover(crossover_type, dimensions, crossover_probability)
-                offspring_normalized = np.where(crossover_vector, mutant, population_normalized[j])                
+                offspring_normalized = np.where(crossover_vector, mutant, population_normalized[idx])                
                 offspring_denormalized = min_bound + offspring_normalized * dimension_range
                 offspring_fitness = obj_func(offspring_denormalized)
-                if offspring_fitness < fitness[j]:
-                    fitness[j] = offspring_fitness
-                    population_normalized[j] = offspring_normalized
+                if offspring_fitness < fitness[idx]:
+                    fitness[idx] = offspring_fitness
+                    population_normalized[idx] = offspring_normalized
                     if offspring_fitness < fitness[best_idx]:
-                        best_idx = j
+                        best_idx = idx
                         best = offspring_denormalized            
             
             if patience != None and gen_num >= patience:
-                if all(np.asarray([element-best for element in best_list[-patience:]]) < epsilon):
+                if (np.asarray([element-best for element in best_list[-patience:]]) < [epsilon]*dimensions).all():
                     break
             best_list.append(best)
             yield run_num, gen_num, best, fitness[best_idx]    
@@ -257,10 +291,11 @@ def ob_de(objection_func,
 
     """
     _, individual_selection_type, n_difference_vectors, crossover_type, = de_type.split("/")
-    # n_difference_vectors = int(n_difference_vectors)
+    n_difference_vectors = int(n_difference_vectors)
     
     dimensions = len(func_bounds)
-    min_bound, max_bound = np.asarray(func_bounds).T
+    min_bound = np.asarray([min(dim) for dim in func_bounds])
+    max_bound = np.asarray([max(dim) for dim in func_bounds])
     dimension_range = np.fabs(min_bound - max_bound)
     for run_num in range(runs):
         population_normalized = np.random.rand(population_size, dimensions)
@@ -288,15 +323,17 @@ def ob_de(objection_func,
                 population_normalized, population_denormalized, fitness, best_idx, best = ob_sampling(population_normalized, population_denormalized, obj_func, min_bound, dimension_range, population_size, dimensions)
             
             if patience != None and gen_num >= patience:
-                if all(np.asarray([element-best for element in best_list[-patience:]]) < epsilon):
+                if (np.asarray([element-best for element in best_list[-patience:]]) < [epsilon]*dimensions).all():
                     break
             best_list.append(best)
-            yield run_num, gen_num, best, fitness[best_idx]    
+            yield run_num, gen_num, best, fitness[best_idx]
+            
+
 
 if __name__ == "__main__":
     
     obj_func = lambda x: sum(x**2)/len(x)
-    func_bounds = [(-50,50)]
+    func_bounds = [(-50,50)]*3
     runs = 5
     result = list(differential_evolution(objection_func=obj_func, func_bounds=func_bounds, runs=runs, generations=300))
     result = list(ob_de(objection_func=obj_func, func_bounds=func_bounds, runs=runs, generations=300))    
@@ -315,3 +352,55 @@ if __name__ == "__main__":
         plt.yscale('log', base=2) 
         plt.plot(f, label='run_num={}'.format(run_num))
     plt.legend()
+    
+    
+    # class mutation:
+    # def __init__(self,
+    #              individual_selection_type,
+    #              n_difference_vectors,
+    #              mutation_factor
+    #              ):
+    #     self.individual_selection_type = individual_selection_type
+    #     self.n_difference_vectors = n_difference_vectors
+    #     self.mutation_factor = mutation_factor
+        
+    # def rand_1(self, random_individuals):
+    #     return np.clip(random_individuals[0] + self.mutation_factor * (random_individuals[1] - random_individuals[2]), a_min=0, a_max=1)
+    
+    # def rand_2(self, random_individuals):
+    #     return np.clip(random_individuals[0] + self.mutation_factor * (random_individuals[1] - random_individuals[2]) + self.mutation_factor * (random_individuals[3] - random_individuals[4]), a_min=0, a_max=1)
+    
+    # def best_1(self, random_individuals, best):
+    #     return np.clip(best + self.mutation_factor * (random_individuals[0] - random_individuals[1]), a_min=0, a_max=1)
+    
+    # def best_2(self, random_individuals, best):
+    #     return np.clip(best + self.mutation_factor * (random_individuals[0] - random_individuals[1]) + self.mutation_factor * (random_individuals[2] - random_individuals[3]), a_min=0, a_max=1)
+    
+    # def current_to_best_1(self, random_individuals, best, current):
+    #     return np.clip(current + self.mutation_factor * (best - random_individuals[0]), a_min=0, a_max=1)
+
+    # def current_to_best_2(self, random_individuals, best, current):
+    #     return np.clip(current + self.mutation_factor * (best - random_individuals[0]) + self.mutation_factor * (random_individuals[1] - random_individuals[2]), a_min=0, a_max=1)    
+    
+    # def variant_func(self, population_normalized, idxs, best, current):
+    #     if self.individual_selection_type == 'rand':
+    #         n_rand = 2 * self.n_difference_vectors + 1
+    #         random_individuals = population_normalized[np.random.choice(idxs, n_rand, replace = False)]
+    #         if self.n_difference_vectors == 1:
+    #             return rand_1(self, random_individuals)
+    #         if self.n_difference_vectors == 2:
+    #             return rand_2
+    #     if self.individual_selection_type == 'best':
+    #         n_rand = 2 * self.n_difference_vectors
+    #         random_individuals = population_normalized[np.random.choice(idxs, n_rand, replace = False)]
+    #         if self.n_difference_vectors == 1:
+    #             return best_1
+    #         if self.n_difference_vectors == 2:
+    #             return best_2
+    #     if self.individual_selection_type == 'current-to-best':
+    #         n_rand = 2 * self.n_difference_vectors - 1
+    #         random_individuals = population_normalized[np.random.choice(idxs, n_rand, replace = False)]
+    #         if self.n_difference_vectors == 1:
+    #             return current_to_best_1
+    #         if self.n_difference_vectors == 2:
+    #             return current_to_best_2
