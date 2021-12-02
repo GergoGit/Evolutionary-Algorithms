@@ -3,6 +3,13 @@
 Created on Wed Dec  1 00:42:13 2021
 
 @author: bonnyaigergo
+
+https://nathanrooy.github.io/posts/2016-08-17/simple-particle-swarm-optimization-with-python/
+https://machinelearningmastery.com/a-gentle-introduction-to-particle-swarm-optimization/
+https://github.com/anyoptimization/pymoo/blob/master/pymoo/algorithms/soo/nonconvex/pso.py
+
+alfa = inertia
+c1 and c2: cognitive and social parameters
 """
 
 import numpy as np
@@ -13,6 +20,9 @@ def PSO(objective_func,
         c1=2,
         c2=2,
         alfa=0.5, 
+        decay=False,
+        alfa_min=0,
+        alfa_max=1,
         runs=1, 
         generations=50,
         patience=10,
@@ -34,6 +44,8 @@ def PSO(objective_func,
         best_fitness = objective_func(global_best)
         
         for gen_num in range(generations):
+            if decay:
+                alfa = (alfa_max - alfa_min) * ((gen_num + 1) / generations)
             for idx in range(population_size):
                 r1, r2 = np.random.rand(2)
                 velocity[idx] = alfa*velocity[idx] + c1*r1*(particle_best[idx] - population_denormalized[idx]) + c2*r2*((global_best - population_denormalized[idx]))
@@ -62,6 +74,7 @@ if __name__ == "__main__":
     result = list(PSO(objective_func=obj_func, 
                      func_bounds=func_bounds, 
                      population_size=20, 
+                     decay=True,
                      runs=runs, 
                      generations=300, 
                      patience=30))
