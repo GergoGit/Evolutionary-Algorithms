@@ -88,11 +88,11 @@ if __name__ == "__main__":
                      elitism=True,
                      population_size=20, 
                      n_offspring=10,
-                     sigma=0.05,
-                     decay=0.95,
+                     sigma=0.04,
+                     decay=0.91,
                      runs=runs, 
                      generations=300, 
-                     patience=20))
+                     patience=30))
     
     for run_num in range(runs):
         run, gen, x, f = zip(*[element for element in result if element[0]==run_num])
