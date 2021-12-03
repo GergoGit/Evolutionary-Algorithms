@@ -40,7 +40,7 @@ def PSO(objective_func,
         global_best_idx = np.argmin(fitness)
         global_best = population_denormalized[global_best_idx]
         global_best_list = [global_best]
-        particle_best = population_denormalized*1
+        particle_best = population_denormalized * 1
         best_fitness = objective_func(global_best)
         
         for gen_num in range(generations):
