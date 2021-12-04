@@ -6,6 +6,7 @@ Created on Thu Dec  2 23:56:21 2021
 
 Artificial Bee Colony (ABC) algorithm
 https://github.com/ntocampos/artificial-bee-colony/blob/master/main.py
+https://github.com/renard162/BeeColPy/blob/master/beecolpy/beecolpy.py
 https://www.youtube.com/watch?v=OPWCTs0d7vA
 
 """

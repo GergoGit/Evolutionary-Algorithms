@@ -9,6 +9,9 @@ Fruit Fly (FOA) optimization algorithm
 https://www.hindawi.com/journals/mpe/2015/492195/
 https://www.hindawi.com/journals/mpe/2013/108768/
 https://github.com/zixuanweeei/fruit-fly-optimization-algorithm/blob/master/ffoa.m
+https://sci-hub.se/10.1016/j.knosys.2011.07.001
+https://braininformatics.springeropen.com/track/pdf/10.1186/s40708-020-0102-9.pdf
+https://www.youtube.com/watch?v=xPR5aLv9Ylw
 
 D: distance
 S: smell
