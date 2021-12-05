@@ -8,6 +8,7 @@ Cuckoo Search algorithm
 
 https://www.researchgate.net/publication/45904981_Cuckoo_Search_via_Levy_Flights
 https://www.youtube.com/watch?v=8sHkQ8kGEr8
+https://github.com/YutaUme/CS/blob/master/cs.py
 
 https://www.randomservices.org/random/special/Levy.html
 https://www.vosesoftware.com/riskwiki/Levydistribution.php
@@ -108,7 +109,7 @@ if __name__ == "__main__":
                      decay_linear=True,
                      decay_factor=0.95,
                      alfa_min=0,
-                     alfa_max=1,                     
+                     alfa_max=1,
                      abandon_probability=0.25,
                      runs=runs, 
                      iterations=300, 
