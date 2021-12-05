@@ -9,6 +9,7 @@ Firefly algorithm
 https://github.com/HaaLeo/swarmlib/blob/master/swarmlib/fireflyalgorithm/firefly_problem.py
 https://github.com/firefly-cpp/FireflyAlgorithm/blob/master/FireflyAlgorithm.py
 https://www.youtube.com/watch?v=7bxn14n57Qk
+https://docs.microsoft.com/en-us/archive/msdn-magazine/2015/june/test-run-firefly-algorithm-optimization
 
 intensity of brightness: fitness
 
@@ -23,6 +24,7 @@ def FA(objective_func,
        alfa=0.5, 
        decay=True,
        decay_linear=True,
+       decay_factor=0.95,
        alfa_min=0,
        alfa_max=0.1,
        beta_null=1,
@@ -45,9 +47,7 @@ def FA(objective_func,
         best = population[best_idx]
         best_list = [best]
         for ite_num in range(iterations):
-            if decay:
-                alfa = (alfa_max - alfa_min) * ((ite_num + 1) / iterations)
-                # alfa *= 0.9
+            
             for i in range(population_size):
                 for j in [j for j in range(population_size) if j != i]:
                     if fitness[j] >= fitness[i]:
@@ -66,8 +66,13 @@ def FA(objective_func,
                                 best_idx = i
                                 best = population[best_idx]
             if patience != None and ite_num >= patience:
-                if (np.asarray([element-best for element in best_list[-patience:]]) < [epsilon]*dimensions).all():
+                if (np.asarray([abs(element-best) for element in best_list[-patience:]]) < [epsilon]*dimensions).all():
                     break
+            if decay:
+                if decay_linear:
+                    alfa = (alfa_max - alfa_min) * ((ite_num + 1) / iterations)
+                else:
+                    alfa *= decay_factor
             best_list.append(best)
             yield run_num, ite_num, best, fitness[best_idx]   
                         
@@ -83,6 +88,8 @@ if __name__ == "__main__":
                      population_size=20, 
                      alfa=0.01, 
                      decay=True,
+                     decay_linear=False,
+                     decay_factor=0.95,
                      alfa_min=0,
                      alfa_max=0.01,
                      beta_null=1,
