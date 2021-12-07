@@ -9,6 +9,7 @@ Whale optimization algorithm (WOA)
 https://www.geeksforgeeks.org/whale-optimization-algorithm-woa/
 https://www.geeksforgeeks.org/implementation-of-whale-optimization-algorithm/
 https://sci-hub.se/10.1016/j.advengsoft.2016.01.008
+https://github.com/docwza/woa/blob/master/src/whale_optimization.py
 
 phases: search, encircle, hunt
 
