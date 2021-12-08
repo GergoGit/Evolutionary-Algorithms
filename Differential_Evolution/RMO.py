@@ -51,7 +51,8 @@ def RMO(objective_func,
         Global_best_fitness = min(fitness)
         best_list = [Global_best]
         V = np.empty(shape=(population_size, dimensions))
-        alfa = alfa_max
+        if decay_linear:
+            alfa = alfa_max
 
         for ite_num in range(iterations):
             for idx in range(population_size):
