@@ -46,7 +46,7 @@ def BHA(objective_func,
             event_horizon = fitness[best_idx] / sum(fitness)
             
             for idx in range(population_size):
-                if np.linalg.norm(best - population[idx]) < event_horizon:
+                if np.linalg.norm(best - population[idx]) < event_horizon and idx != best_idx:
                     population[idx] = min_bound + np.random.rand(dimensions) * dimension_range
             fitness = np.asarray([objective_func(individual) for individual in population])
             best_idx = np.argmin(fitness)
