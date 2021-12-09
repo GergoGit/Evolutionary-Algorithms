@@ -38,10 +38,10 @@ def GWO(objective_func,
         population = min_bound + np.random.rand(population_size, dimensions) * dimension_range
         fitness = np.asarray([objective_func(individual) for individual in population])
 
-        top3_ind = fitness.argsort()[:3]            
-        best = population[top3_ind[0]]
-        second_best = population[top3_ind[1]]
-        third_best = population[top3_ind[2]]
+        top3_idx = fitness.argsort()[:3]            
+        best = population[top3_idx[0]]
+        second_best = population[top3_idx[1]]
+        third_best = population[top3_idx[2]]
         best_list = [best]
         for ite_num in range(iterations):
             # linearly decreased from 2 to 0
@@ -59,16 +59,16 @@ def GWO(objective_func,
                     population[idx] = offspring
                     fitness[idx] = offspring_fitness
                 
-            top3_ind = fitness.argsort()[:3]            
-            best = population[top3_ind[0]]
-            second_best = population[top3_ind[1]]
-            third_best = population[top3_ind[2]]
+            top3_idx = fitness.argsort()[:3]            
+            best = population[top3_idx[0]]
+            second_best = population[top3_idx[1]]
+            third_best = population[top3_idx[2]]
             
             if patience != None and ite_num >= patience:
                 if (np.asarray([abs(element-best) for element in best_list[-patience:]]) < [epsilon]*dimensions).all():
                     break
             best_list.append(best)
-            yield run_num, ite_num, best, fitness[top3_ind[0]]
+            yield run_num, ite_num, best, fitness[top3_idx[0]]
 
 
 if __name__ == "__main__":
