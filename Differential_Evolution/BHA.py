@@ -42,7 +42,7 @@ def BHA(objective_func,
         for ite_num in range(iterations):
             for idx in range(population_size):
                 population[idx] += np.random.rand() * (best - population[idx])
-            
+                population[idx] = np.clip(a=population[idx], a_min=min_bound, a_max=max_bound)
             event_horizon = fitness[best_idx] / sum(fitness)
             
             for idx in range(population_size):
