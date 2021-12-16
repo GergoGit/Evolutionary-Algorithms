@@ -12,6 +12,7 @@ https://sci-hub.se/10.1016/j.swevo.2012.09.004
 https://www.sciencedirect.com/science/article/pii/S111001682100613X
 http://metahack.org/PPSN2014-Tanabe-Fukunaga.pdf
 https://www.researchgate.net/figure/Exponential-crossover-pseudo-code_fig1_220176034
+https://sci2s.ugr.es/sites/default/files/files/TematicWebSites/EAMHCO/contributionsCEC05/quin05sad.pdf
     
 code:
 https://machinelearningmastery.com/differential-evolution-from-scratch-in-python/
