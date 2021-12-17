@@ -68,7 +68,7 @@ if __name__ == "__main__":
     runs = 5
     result = list(SA(objective_func=obj_func, 
                      func_bounds=func_bounds, 
-                     alfa=1,
+                     # alfa=1,
                      temperature=10,
                      step_size=0.025,
                      runs=runs, 
