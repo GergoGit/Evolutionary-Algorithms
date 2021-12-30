@@ -15,4 +15,9 @@ class BA(object):
     def __init__(self, obj_func, population_size, iterations):
         self.population_size = population_size
         self.iterations = iterations
+    
+    def initialize_population():
+        pass
+    
+    def
         

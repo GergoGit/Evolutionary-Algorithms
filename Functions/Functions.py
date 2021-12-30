@@ -57,7 +57,7 @@ class Ackley(object):
 
     
 class Rastrigin(object):
-    def __init__(self, dimensions, A):
+    def __init__(self, dimensions, A=10):
         self.search_space = np.array([(-5.12, 5.12)] * dimensions, dtype=np.float32)
         self.minima = 0.0
         self.minima_loc = np.array([0, 0] * dimensions, dtype=np.float32)
@@ -74,7 +74,7 @@ class Eggholder(object):
     def __init__(self):
         self.minima = -959.6407
         self.minima_loc = np.array([512, 404.2319], dtype=np.float32)
-        self.search_space = np.array([(-512, 512)], dtype=np.float32)
+        self.search_space = np.array([(-512, 512)]*2, dtype=np.float32)
 
     def evaluate(self, x, y):
         a = np.sin(np.sqrt(np.abs(x / 2 + y + 47)))
@@ -87,7 +87,7 @@ class Levy(object):
     def __init__(self):
         self.minima = 0.0
         self.minima_loc = np.array([1, 1], dtype=np.float32)
-        self.search_space = np.array([(-10, 10)], dtype=np.float32)
+        self.search_space = np.array([(-10, 10)]*2, dtype=np.float32)
 
     def evaluate(self, x, y):
         a = np.power(np.sin(3 * np.pi * x), 2) 
