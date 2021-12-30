@@ -17,7 +17,9 @@ pulse rate = r
 """
 
 import numpy as np
+# from numba import jit
 
+# @jit
 def BA(objective_func, 
        func_bounds, 
        population_size,
@@ -83,10 +85,13 @@ def BA(objective_func,
 if __name__ == "__main__":
     
     import matplotlib.pyplot as plt
-        
+    import time
+
     obj_func = lambda x: sum(x**2)/len(x)
     func_bounds = [(-100,100)]*2
     runs = 5
+    
+    start = time.time()
     result = list(BA(objective_func=obj_func, 
                        func_bounds=func_bounds, 
                        population_size=30,
@@ -101,6 +106,8 @@ if __name__ == "__main__":
                        patience=300,
                        epsilon=1E-10,
                        verbose=0))
+    end = time.time()
+    print(end - start)
     
     for run_num in range(runs):
         run, gen, x, f = zip(*[element for element in result if element[0]==run_num])
