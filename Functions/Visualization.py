@@ -4,7 +4,13 @@ Created on Wed Dec 29 02:36:54 2021
 
 @author: bonnyaigergo
 """
-def func_plot():
+
+from numpy import meshgrid, arange
+from matplotlib import pyplot
+from mpl_toolkits.mplot3d import Axes3D
+
+
+def func_plot(objective):
 
     # define range for input
     r_min, r_max = -5.0, 5.0
@@ -21,3 +27,6 @@ def func_plot():
     axis.plot_surface(x, y, results, cmap='jet')
     # show the plot
     pyplot.show()
+    
+if __name__ == '__main__':
+    
