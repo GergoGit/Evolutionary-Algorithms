@@ -47,6 +47,7 @@ import numpy as np
 
 class Ackley(object):
     def __init__(self):
+        self.name = "Ackley function"
         self.minima = 0.0
         self.minima_loc = np.array([0.0, 0.0], dtype=np.float32)
         self.search_space = np.array([(-5, 5)]*2, dtype=np.float32)
@@ -58,6 +59,7 @@ class Ackley(object):
     
 class Rastrigin(object):
     def __init__(self, dimensions, A=10):
+        self.name = "Rastrigin function"
         self.search_space = np.array([(-5.12, 5.12)] * dimensions, dtype=np.float32)
         self.minima = 0.0
         self.minima_loc = np.array([0, 0] * dimensions, dtype=np.float32)
@@ -69,9 +71,23 @@ class Rastrigin(object):
         z = self.A * self.dimensions + np.sum(z, axis=1)
         return z
 
+class Himmelblau(object):
+    def __init__(self):
+        self.name = "Himmelblau function"
+        self.search_space = np.array([(-5, 5)] * 2, dtype=np.float32)
+        self.minima = 0.0
+        self.minima_loc = np.array([(3, 2), 
+                                    (-2.805118, 3.131312), 
+                                    (-3.779310, -3.283186), 
+                                    (3.584428, -1.848126)], dtype=np.float32)
+        
+    def evaluate(self, x, y):
+        z = np.power(np.power(x, 2) + y - 11, 2) + np.power(np.power(y, 2) + x - 7, 2)
+        return z
 
 class Eggholder(object):
     def __init__(self):
+        self.name = "Eggholder function"
         self.minima = -959.6407
         self.minima_loc = np.array([512, 404.2319], dtype=np.float32)
         self.search_space = np.array([(-512, 512)]*2, dtype=np.float32)
@@ -85,6 +101,7 @@ class Eggholder(object):
 
 class Levy(object):
     def __init__(self):
+        self.name = "Levy function"
         self.minima = 0.0
         self.minima_loc = np.array([1, 1], dtype=np.float32)
         self.search_space = np.array([(-10, 10)]*2, dtype=np.float32)
@@ -102,7 +119,7 @@ class LevyMD(object):
     def __init__(self, dimensions, A):
         self.search_space = np.array([(-5.12, 5.12)] * dimensions, dtype=np.float32)
         self.minima = 0.0
-        self.minima_loc = np.array([0, 0] * dimensions, dtype=np.float32)
+        self.minima_loc = np.array([0] * dimensions, dtype=np.float32)
         self.A = A
         self.dimensions = dimensions
         
