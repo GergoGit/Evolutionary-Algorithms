@@ -6,16 +6,22 @@ Created on Wed Dec 29 02:36:54 2021
 
 source links:
 http://louistiao.me/notes/visualizing-and-animating-optimization-algorithms-with-matplotlib/
+https://notebook.community/ltiao/notebooks/visualizing-and-animating-optimization-algorithms-with-matplotlib
+https://pyswarms.readthedocs.io/en/development/examples/visualization.html
+https://pythonrepo.com/repo/logancyang-loss-landscape-anim
+https://www.pyretis.org/current/examples/examples-pso.html
 https://plotly.github.io/plotly.py-docs/generated/plotly.graph_objects.Surface.html
+
+https://github.com/AxelThevenot/Python_Benchmark_Test_Optimization_Function_Single_Objective/blob/main/pybenchfunction/util.py
 
 """
 
 from numpy import meshgrid, arange, asarray
 import numpy as np
-from matplotlib import pyplot
+# from matplotlib import pyplot
 from mpl_toolkits.mplot3d import Axes3D
 from inspect import isfunction, ismethod
-import types
+# import types
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 import plotly.graph_objects as go
@@ -79,7 +85,7 @@ def Surface_3D(objective, search_space, title=None, logscale=False, rotation_xy=
     
     color_norm = LogNorm() if logscale else None
     
-    figure = pyplot.figure()
+    figure = plt.figure()
     axis = figure.gca(projection='3d')
     axis.plot_surface(x, y, z, cmap='jet', norm=color_norm)
     axis.set_xlabel('X')
@@ -87,7 +93,7 @@ def Surface_3D(objective, search_space, title=None, logscale=False, rotation_xy=
     axis.set_zlabel('$Z$')
     axis.set_title(title)
     axis.view_init(azim=rotation_xy, elev=rotation_z)
-    pyplot.show()
+    plt.show()
 
 
 
@@ -288,10 +294,143 @@ class ObjectiveToPlot(object):
         ax.set_title(self.title)
         ax.view_init(azim=rotation_xy, elev=rotation_z)
         pyplot.show()
+
+class CreateBaseToPlot(object):
     
+    def __init__(self, obj_func):
+            
+        self.objective = obj_func.evaluate
+        self.search_space = obj_func.search_space
+        self.title= obj_func.name
+        self.minima = obj_func.minima
+        self.minima_loc = obj_func.minima_loc
+        
+        if ismethod(self.objective) == False:
+            raise Exception("objective should be a function")
+            
+        if (isinstance(self.title, str) or self.title is None) == False:
+            raise Exception("title should be a string")
+            
+        if isinstance(self.search_space, np.ndarray) == False:
+            raise Exception("search space should be given in numpy array format")
+            if self.search_space.ndim != 2:
+                raise Exception("search space should be given in 2D numpy array format")
+        
+        if (isinstance(self.minima_loc, np.ndarray) or self.minima_loc is None) == False:
+            raise Exception("minima_loc should be given in numpy array format")
+        if self.minima_loc is not None and self.minima_loc.ndim == 1:
+            self.minima_loc = self.minima_loc.reshape(1, 2)
+        
+        if obj_func.any_dim and obj_func.dimensions != 2:
+            raise Exception("for functions working with any dimensions set dimensions = 2")
+            
+        self.min_bound = np.asarray([min(dim) for dim in self.search_space])
+        self.max_bound = np.asarray([max(dim) for dim in self.search_space])
+    
+        self.x_axis = np.linspace(start=self.min_bound[0], stop=self.max_bound[0], num=1000)
+        self.y_axis = np.linspace(start=self.min_bound[1], stop=self.max_bound[1], num=1000)
+    
+        self.x, self.y = np.meshgrid(self.x_axis, self.y_axis)
+        
+        if obj_func.any_dim:
+            xy = np.array([self.x, self.y])
+            self.z = np.apply_along_axis(func1d=self.objective, axis=0, arr=xy)
+        else:    
+            self.z = self.objective(self.x, self.y)
+        
+    def PlotlyContour3D(self):
+        fig = go.Figure()
+        fig.add_trace(
+            go.Contour(
+                x=self.x_axis,
+                y=self.y_axis,
+                z=self.z,
+                colorscale="Jet"
+                )
+            )
+        if self.minima_loc is not None:
+            fig.add_trace(
+                go.Scatter(
+                    mode='markers',
+                    x=self.minima_loc[:,0],
+                    y=self.minima_loc[:,1],
+                    marker=dict(
+                        symbol = 'star',
+                        color='Red',
+                        size=15
+                    ),
+                    showlegend=False
+                )
+            )
+        fig.update_layout(title_text=self.title, title_x=0.5, xaxis_title='X', yaxis_title='Y')
+        fig.show()
+        
+    def PlotlySurface3D(self):
+        fig = go.Figure(data=[go.Surface(x=self.x, y=self.y, z=self.z, colorscale='Jet')])
+        fig.update_layout(title_text=self.title, title_x=0.5)
+        fig.show()
+        
+    def ContourPlot(self, logscale=False):            
+        color_norm = LogNorm() if logscale else None
+        
+        fig, ax = plt.subplots(figsize=(10, 6))
+        if logscale:
+            ax.contour(
+                self.x, self.y, self.z, 
+                levels=log_scaler(vmin=self.minima, vmax=self.z.max(), num=50), 
+                cmap=plt.cm.jet
+                )
+        else:
+            cs = ax.contourf(self.x, self.y, self.z, levels=25, cmap=plt.cm.jet, norm=color_norm)
+            fig.colorbar(cs, ax=ax, shrink=0.9)
+        if self.minima_loc is not None:
+            ax.plot(self.minima_loc[:,0], self.minima_loc[:,1], 'r*', markersize=18) # red stars as markers of minima        
+        ax.set_xlabel('$X$')
+        ax.set_ylabel('$Y$')
+        ax.set_title(self.title)    
+        ax.set_xlim((self.min_bound[0], self.max_bound[0]))
+        ax.set_ylim((self.min_bound[1], self.max_bound[1]))
+        
+    def Surface3D(self, logscale=False, rotation_xy=None, rotation_z=None):
+        color_norm = LogNorm() if logscale else None
+    
+        figure = plt.figure()
+        ax = figure.gca(projection='3d')
+        ax.plot_surface(self.x, self.y, self.z, cmap='jet', norm=color_norm)
+        ax.set_xlabel('$X$')
+        ax.set_ylabel('$Y$')
+        ax.set_zlabel('$Z$')
+        ax.set_title(self.title)
+        ax.view_init(azim=rotation_xy, elev=rotation_z)
+        plt.show()
+    
+    def ContourSurface3D(self, logscale=False, rotation_xy=None, rotation_z=None):
+        color_norm = LogNorm() if logscale else None
+    
+        figure = plt.figure()
+        ax = figure.gca(projection='3d')
+        ax.plot_surface(self.x, self.y, self.z, cmap='jet', norm=color_norm)
+        if logscale:
+            ax.contour(
+                self.x, self.y, self.z, 
+                levels=log_scaler(vmin=self.minima, vmax=self.z.max(), num=50), 
+                cmap=plt.cm.jet
+                )
+        else:
+            ax.contour(self.x, self.y, self.z, zdir='z', levels=25, offset=self.minima, cmap='jet', norm=color_norm)
+        ax.set_xlabel('$X$')
+        ax.set_ylabel('$Y$')
+        ax.set_zlabel('$Z$')
+        ax.set_title(self.title)
+        ax.view_init(azim=rotation_xy, elev=rotation_z)
+        plt.show()        
+        
+    
+        
 if __name__ == '__main__':
     
-    from ObjectiveFunctions import Ackley, Eggholder, Levy, Himmelblau, GoldsteinPrice, Beale, HolderTable
+    from ObjectiveFunctions import Ackley, Eggholder, Levy, Himmelblau, GoldsteinPrice 
+    from ObjectiveFunctions import Beale, HolderTable, Rastrigin, Michalewicz, Salomon
     
     fn = Ackley()
     fn = Eggholder()
@@ -300,6 +439,10 @@ if __name__ == '__main__':
     fn = GoldsteinPrice()
     fn = Beale()
     fn = HolderTable()
+    fn = Rastrigin(dimensions=2)
+    fn = Michalewicz(dimensions=2)
+    fn = Salomon(dimensions=2)
+    
     Surface_3D(objective=fn.evaluate, 
                search_space=fn.search_space, 
                title=fn.name,
@@ -324,4 +467,10 @@ if __name__ == '__main__':
     PlotBase.PlotlyContour3D()
     
     
+    PlotBase = CreateBaseToPlot(fn)
+    PlotBase.Surface3D(logscale=True, rotation_xy=None, rotation_z=None)
+    PlotBase.ContourPlot(logscale=True)
+    PlotBase.PlotlySurface3D()
+    PlotBase.PlotlyContour3D()
+    PlotBase.ContourSurface3D(logscale=False)
     

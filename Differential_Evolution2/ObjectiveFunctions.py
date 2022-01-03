@@ -7,7 +7,7 @@ Created on Thu Dec 23 23:26:24 2021
 https://en.wikipedia.org/wiki/Test_functions_for_optimization
 https://robertmarks.org/Classes/ENGR5358/Papers/functions.pdf
 https://towardsdatascience.com/optimization-eye-pleasure-78-benchmark-test-functions-for-single-objective-optimization-92e7ed1d1f12
-
+https://machinelearningmastery.com/a-gentle-introduction-to-particle-swarm-optimization/
 https://github.com/anyoptimization/pymoo/tree/master/pymoo/problems/single
 
 """
@@ -21,9 +21,12 @@ class Ackley(object):
         self.minima = 0.0
         self.minima_loc = np.array([0.0, 0.0], dtype=np.float32)
         self.search_space = np.array([(-5, 5)]*2, dtype=np.float32)
+        self.any_dim = False
         
     def evaluate(self, x, y):
-        z = -20.0 * np.exp(-0.2 * np.sqrt(0.5 * (x**2 + y**2))) - np.exp(0.5 * (np.cos(2 * np.pi * x) + np.cos(2 * np.pi * y))) + np.e + 20
+        a = -20.0 * np.exp(-0.2 * np.sqrt(0.5 * (np.power(x, 2) + np.power(y, 2))))
+        b = np.exp(0.5 * (np.cos(2 * np.pi * x) + np.cos(2 * np.pi * y))) + np.e + 20
+        z = a - b
         return z
 
     
@@ -32,13 +35,46 @@ class Rastrigin(object):
         self.name = "Rastrigin function"
         self.search_space = np.array([(-5.12, 5.12)] * dimensions, dtype=np.float32)
         self.minima = 0.0
-        self.minima_loc = np.array([0, 0] * dimensions, dtype=np.float32)
+        self.minima_loc = np.array([0] * dimensions, dtype=np.float32)
         self.A = A
         self.dimensions = dimensions
+        self.any_dim = True
         
     def evaluate(self, x):
         z = np.power(x, 2) - self.A * np.cos(2 * np.pi * x)
-        z = self.A * self.dimensions + np.sum(z, axis=1)
+        z = self.A * self.dimensions + np.sum(z)
+        return z
+
+# TODO: correct Michalewicz    
+class Michalewicz(object):
+    def __init__(self, dimensions, m=10):
+        """
+        Minima and location is valid in case of 2 dimensions
+        """
+        self.name = "Michalewicz function"
+        self.search_space = np.array([(0, np.pi)] * dimensions, dtype=np.float32)
+        self.minima = -1.8013
+        self.minima_loc = np.array([2.2, 1.57], dtype=np.float32)
+        self.m = m
+        self.dimensions = dimensions
+        self.any_dim = True
+        
+    def evaluate(self, x):
+        i = np.arange(1, self.dimensions+1, 1)
+        z = -np.sum(np.sin(x)*np.sin(np.power(i*np.power(x, 2)/np.pi, 2*self.m)))
+        return z
+    
+class Salomon(object):
+    def __init__(self, dimensions):
+        self.name = "Salomon function"
+        self.search_space = np.array([(-3, 3)] * dimensions, dtype=np.float32)
+        self.minima = 0.0
+        self.minima_loc = np.array([0.0] * dimensions, dtype=np.float32)
+        self.dimensions = dimensions
+        self.any_dim = True
+        
+    def evaluate(self, x):
+        z = 1-np.cos(2*np.pi*np.sqrt(np.sum(np.power(x, 2))))+0.1*np.sqrt(np.sum(np.power(x, 2)))
         return z
 
 class Himmelblau(object):
@@ -50,6 +86,7 @@ class Himmelblau(object):
                                     (-2.805118, 3.131312), 
                                     (-3.779310, -3.283186), 
                                     (3.584428, -1.848126)], dtype=np.float32)
+        self.any_dim = False
         
     def evaluate(self, x, y):
         z = np.power(np.power(x, 2) + y - 11, 2) + np.power(np.power(y, 2) + x - 7, 2)
@@ -61,6 +98,7 @@ class Eggholder(object):
         self.minima = -959.6407
         self.minima_loc = np.array([512, 404.2319], dtype=np.float32)
         self.search_space = np.array([(-512, 512)]*2, dtype=np.float32)
+        self.any_dim = False
 
     def evaluate(self, x, y):
         a = np.sin(np.sqrt(np.abs(x / 2 + y + 47)))
@@ -75,6 +113,7 @@ class Levy(object):
         self.minima = 0.0
         self.minima_loc = np.array([1, 1], dtype=np.float32)
         self.search_space = np.array([(-10, 10)]*2, dtype=np.float32)
+        self.any_dim = False
 
     def evaluate(self, x, y):
         a = np.power(np.sin(3 * np.pi * x), 2) 
@@ -90,6 +129,7 @@ class GoldsteinPrice(object):
         self.minima = 3.0
         self.minima_loc = np.array([0, -1], dtype=np.float32)
         self.search_space = np.array([(-2, 2)]*2, dtype=np.float32)
+        self.any_dim = False
 
     def evaluate(self, x, y):
         a = 1 + np.power(x + y + 1, 2) * (19 - 14*x + 3*np.power(x, 2) - 14*y + 6*x*y + 3*np.power(y, 2))
@@ -103,6 +143,7 @@ class Beale(object):
         self.minima = 0.0
         self.minima_loc = np.array([3.0, 0.5], dtype=np.float32)
         self.search_space = np.array([(-4.5, 4.5)]*2, dtype=np.float32)
+        self.any_dim = False
 
     def evaluate(self, x, y):
         z = np.power(1.5 - x + x*y, 2) + np.power(2.25 - x + x*np.power(y, 2), 2) + np.power(2.625 - x + x*np.power(y, 3), 2)
@@ -117,6 +158,7 @@ class HolderTable(object):
                                     (-8.05502, 9.66459), 
                                     (-8.05502, -9.66459), 
                                     (8.05502, -9.66459)], dtype=np.float32)
+        self.any_dim = False
         
     def evaluate(self, x, y):
         a = np.abs(1 - np.sqrt(np.power(x, 2) + np.power(y, 2)) / np.pi)
@@ -131,6 +173,7 @@ class LevyMD(object):
         self.minima_loc = np.array([0] * dimensions, dtype=np.float32)
         self.A = A
         self.dimensions = dimensions
+        self.any_dim = True
         
     def evaluate(self, x):
         z = np.power(x, 2) - self.A * np.cos(2 * np.pi * x)
