@@ -14,6 +14,7 @@ https://plotly.github.io/plotly.py-docs/generated/plotly.graph_objects.Surface.h
 
 https://github.com/AxelThevenot/Python_Benchmark_Test_Optimization_Function_Single_Objective/blob/main/pybenchfunction/util.py
 
+Color logscale doesn't work in case of negative values in matplotlib'
 """
 
 from numpy import meshgrid, arange, asarray
@@ -180,17 +181,20 @@ def contour_plot(objective, search_space, minima=None, minima_loc=None, title=No
     color_norm = LogNorm() if logscale else None
     
     fig, ax = plt.subplots(figsize=(10, 6))
-    
-    cs = ax.contour(x, y, z, levels=log_scaler(vmin=minima, vmax=z.max(), num=50), 
-                    # norm=LogNorm(), 
-                    cmap=plt.cm.jet)
-    fig.colorbar(cs, ax=ax, shrink=0.9)
-    # ax.contour(x, y, z, levels=np.logspace(start=0, stop=6, num=100), norm=LogNorm(), cmap=plt.cm.jet)
-    # ax.contourf(x, y, z, levels=25, cmap=plt.cm.jet, norm=color_norm)
-    ax.plot(minima_loc[:,0], minima_loc[:,1], 'r*', markersize=18) # red stars as markers of minima
-    
-    ax.set_xlabel('$x$')
-    ax.set_ylabel('$y$')
+    ax.plot_surface(x,y,z, cmap='jet', norm=color_norm)
+    if logscale:
+        ax.contour(
+            x,y,z, 
+            levels=log_scaler(vmin=minima, vmax=z.max(), num=50), 
+            cmap=plt.cm.jet
+            )
+    else:
+        cs = ax.contourf(x,y,z, levels=25, cmap=plt.cm.jet)
+        fig.colorbar(cs, ax=ax, shrink=0.9)
+    if minima_loc is not None:
+        ax.plot(minima_loc[:,0], minima_loc[:,1], 'r*', markersize=18) # red stars as markers of minima        
+    ax.set_xlabel('$X$')
+    ax.set_ylabel('$Y$')
     ax.set_title(title)    
     ax.set_xlim((min_bound[0], max_bound[0]))
     ax.set_ylim((min_bound[1], max_bound[1]))
@@ -285,7 +289,7 @@ class ObjectiveToPlot(object):
     def Surface3D(self, logscale=False, rotation_xy=None, rotation_z=None):
         color_norm = LogNorm() if logscale else None
     
-        figure = pyplot.figure()
+        figure = plt.figure()
         ax = figure.gca(projection='3d')
         ax.plot_surface(self.x, self.y, self.z, cmap='jet', norm=color_norm)
         ax.set_xlabel('$X$')
@@ -293,17 +297,17 @@ class ObjectiveToPlot(object):
         ax.set_zlabel('$Z$')
         ax.set_title(self.title)
         ax.view_init(azim=rotation_xy, elev=rotation_z)
-        pyplot.show()
+        plt.show()
 
 class CreateBaseToPlot(object):
     
     def __init__(self, obj_func):
             
-        self.objective = obj_func.evaluate
+        self.objective =    obj_func.evaluate
         self.search_space = obj_func.search_space
-        self.title= obj_func.name
-        self.minima = obj_func.minima
-        self.minima_loc = obj_func.minima_loc
+        self.title =        obj_func.name
+        self.minima =       obj_func.minima
+        self.minima_loc =   obj_func.minima_loc
         
         if ismethod(self.objective) == False:
             raise Exception("objective should be a function")
@@ -377,7 +381,7 @@ class CreateBaseToPlot(object):
         if logscale:
             ax.contour(
                 self.x, self.y, self.z, 
-                levels=log_scaler(vmin=self.minima, vmax=self.z.max(), num=50), 
+                levels=log_scaler(vmin=self.minima, vmax=self.z.max(), num=100), 
                 cmap=plt.cm.jet
                 )
         else:
@@ -414,10 +418,10 @@ class CreateBaseToPlot(object):
             ax.contour(
                 self.x, self.y, self.z, 
                 levels=log_scaler(vmin=self.minima, vmax=self.z.max(), num=50), 
-                cmap=plt.cm.jet
+                cmap=plt.cm.jet, offset=self.minima
                 )
         else:
-            ax.contour(self.x, self.y, self.z, zdir='z', levels=25, offset=self.minima, cmap='jet', norm=color_norm)
+            ax.contour(self.x, self.y, self.z, zdir='z', levels=25, offset=self.minima, cmap='jet')
         ax.set_xlabel('$X$')
         ax.set_ylabel('$Y$')
         ax.set_zlabel('$Z$')
@@ -462,15 +466,15 @@ if __name__ == '__main__':
                                minima_loc=fn.minima_loc,
                                title=fn.name)
     PlotBase.Surface3D(logscale=True, rotation_xy=None, rotation_z=None)
-    PlotBase.ContourPlot(logscale=False)
+    PlotBase.ContourPlot(logscale=True)
     PlotBase.PlotlySurface3D()
     PlotBase.PlotlyContour3D()
     
     
     PlotBase = CreateBaseToPlot(fn)
-    PlotBase.Surface3D(logscale=True, rotation_xy=None, rotation_z=None)
-    PlotBase.ContourPlot(logscale=True)
+    PlotBase.Surface3D(logscale=False, rotation_xy=None, rotation_z=None)
+    PlotBase.ContourPlot(logscale=False)
     PlotBase.PlotlySurface3D()
     PlotBase.PlotlyContour3D()
-    PlotBase.ContourSurface3D(logscale=False)
+    PlotBase.ContourSurface3D(logscale=True)
     
