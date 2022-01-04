@@ -30,6 +30,7 @@ import plotly.io as pio
 # pio.renderers.default = "browser" # it shows plotly functions in web broser
 pio.renderers.default = "svg" # it shows plotly functions in spyder
 
+# TODO: check autograd library
 # import autograd.numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import animation, ticker

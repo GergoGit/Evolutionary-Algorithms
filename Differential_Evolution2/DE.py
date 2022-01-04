@@ -207,6 +207,83 @@ def differential_evolution(objective_func,
             yield run_num, gen_num, best, fitness[best_idx]    
 
 
+class DE(object):
+    def __init__(self, 
+                 objective, 
+                 de_type='DE/best/1/bin', 
+                 mutation_factor=0.8, 
+                 crossover_prob=0.7, 
+                 population_size=30, 
+                 generation_num=300):
+        
+        self.objective = objective
+        self.obj_func = objective.evaluate
+        self.search_space = self.objective.search_space
+        
+        self.min_bound = np.asarray([min(dim) for dim in self.search_space])
+        self.max_bound = np.asarray([max(dim) for dim in self.search_space])
+        self.dim_range = np.fabs(self.min_bound - self.max_bound)
+        self.dim_num = objective.dim_num
+        
+        self.mutation_factor = mutation_factor
+        self.crossover_prob = crossover_prob
+        self.population_size = population_size
+        self.generation_num = generation_num
+        
+        _, self.individual_selection_type, n_difference_vectors, self.crossover_type, = de_type.split("/")
+        self.n_difference_vectors = int(n_difference_vectors)
+        
+        
+        
+    def Initialize_population(self):
+        population = self.min_bound + np.random.rand(self.population_size, self.dim_num) * self.dim_range
+        fitness = np.asarray([self.obj_func(individual) for individual in population])
+        best_idx = np.argmin(fitness)
+        best = population[best_idx]
+        return population, fitness, best_idx, best
+        
+    def Crossover(self, mutant, individual):
+        if self.crossover_type == 'bin':
+            crossover_vector = np.random.rand(self.dim_num) < self.crossover_prob
+        if self.crossover_type == 'exp':
+            L = 0
+            j = np.random.randint(low=0, high=self.dim_num)
+            random_number = np.random.rand()
+            crossover_vector = np.asarray([False] * self.dim_num)
+            while random_number < self.crossover_prob and L < self.dim_num:
+                L += 1
+                j = (j+1) % self.dim_num
+                random_number = np.random.rand()
+                crossover_vector[j] = True
+        offspring = np.where(crossover_vector, mutant, individual)
+        return offspring
+    
+    def Mutation(self):
+        pass
+    
+    def Run(self):
+        population, fitness, best_idx, best = Initialize_population()
+        for gen in range(self.generation_num):
+            for ind in range(self.population_size):
+                # Mutation
+                mutant = mutation(*input_func(individual_selection_type, n_difference_vectors, mutation_factor, population_normalized, idx, best_idx))
+                # clip
+                # Crossover
+                offspring = Crossover(mutant, population[ind])
+                offspring_fitness = self.objective_func(offspring)
+                if offspring_fitness < fitness[ind]:
+                    fitness[ind] = offspring_fitness
+                    population[ind] = offspring
+                    if offspring_fitness < fitness[best_idx]:
+                        best_idx = ind
+                        best = offspring
+            
+            
+        
+        
+        
+
+
 def ob_sampling(population_normalized, population_denormalized, objective_func, min_bound, dimension_range, population_size, dimensions):
     opposition_normalized = np.zeros_like(population_normalized)
     for i in range(population_size):
