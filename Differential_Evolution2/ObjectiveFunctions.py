@@ -25,24 +25,24 @@ class Ackley(object):
         
     def evaluate(self, x, y):
         a = -20.0 * np.exp(-0.2 * np.sqrt(0.5 * (np.power(x, 2) + np.power(y, 2))))
-        b = np.exp(0.5 * (np.cos(2 * np.pi * x) + np.cos(2 * np.pi * y))) + np.e + 20
+        b = np.exp(0.5 * (np.cos(2 * np.pi * x) + np.cos(2 * np.pi * y))) + np.e + 20.0
         z = a - b
         return z
 
     
 class Rastrigin(object):
-    def __init__(self, dimensions, A=10):
+    def __init__(self, dim_num, A=10):
         self.name = "Rastrigin function"
-        self.search_space = np.array([(-5.12, 5.12)] * dimensions, dtype=np.float32)
+        self.search_space = np.array([(-5.12, 5.12)] * dim_num, dtype=np.float32)
         self.minima = 0.0
-        self.minima_loc = np.array([0] * dimensions, dtype=np.float32)
+        self.minima_loc = np.array([0] * dim_num, dtype=np.float32)
         self.A = A
-        self.dimensions = dimensions
+        self.dim_num = dim_num
         self.any_dim = True
         
     def evaluate(self, x):
         z = np.power(x, 2) - self.A * np.cos(2 * np.pi * x)
-        z = self.A * self.dimensions + np.sum(z)
+        z = self.A * self.dim_num + np.sum(z)
         return z
 
 # TODO: correct Michalewicz    
@@ -144,6 +144,7 @@ class Beale(object):
         self.minima_loc = np.array([3.0, 0.5], dtype=np.float32)
         self.search_space = np.array([(-4.5, 4.5)]*2, dtype=np.float32)
         self.any_dim = False
+        self.dim_num = 2
 
     def evaluate(self, x, y):
         z = np.power(1.5 - x + x*y, 2) + np.power(2.25 - x + x*np.power(y, 2), 2) + np.power(2.625 - x + x*np.power(y, 3), 2)
