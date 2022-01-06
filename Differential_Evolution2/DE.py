@@ -75,7 +75,7 @@ ODE - OPPOSITION-BASED DE
     
 """
 
-# TODO: stopping criterion, Visualization, mutation factor decay
+# TODO: stopping criterion, Visualization, mutation factor decay, parallelization
 
 import numpy as np
 
