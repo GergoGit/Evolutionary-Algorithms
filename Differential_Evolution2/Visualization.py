@@ -437,6 +437,14 @@ if __name__ == '__main__':
     from ObjectiveFunctions import Ackley, Eggholder, Levy, Himmelblau, GoldsteinPrice 
     from ObjectiveFunctions import Beale, HolderTable, Rastrigin, Michalewicz, Salomon
     
+    import os
+    from pathlib import Path
+
+    # os.getcwd()
+    os.chdir(r'C:\Users\bonnyaigergo\Documents\GitHub\Evolutionary-Algorithms\Differential_Evolution2')
+    path = Path().absolute()
+    os.chdir(path)
+    
     fn = Ackley()
     fn = Eggholder()
     fn = Levy()

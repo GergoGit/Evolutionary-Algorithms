@@ -9,6 +9,7 @@ https://robertmarks.org/Classes/ENGR5358/Papers/functions.pdf
 https://towardsdatascience.com/optimization-eye-pleasure-78-benchmark-test-functions-for-single-objective-optimization-92e7ed1d1f12
 https://machinelearningmastery.com/a-gentle-introduction-to-particle-swarm-optimization/
 https://github.com/anyoptimization/pymoo/tree/master/pymoo/problems/single
+https://github.com/AxelThevenot/Python_Benchmark_Test_Optimization_Function_Single_Objective
 
 """
 
