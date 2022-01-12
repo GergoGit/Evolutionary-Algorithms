@@ -73,7 +73,7 @@ fitness=np.array([10])
 es = EarlyStopping() 
 estop = ImpBestObj(from_nth_gen=0, patience=5, tolerance=1E-10, metric=fitness)
 
-estop = ImpBestObj()
+estop = ImpBest()
 for i in range(10):
     print(estop.MeetStoppingCriterion(nth_gen=i, metric=np.random.rand()))
 
@@ -102,7 +102,7 @@ class ImpAv(object):
         self.metric_list = np.append(self.metric_list, metric)
         
         if nth_gen > self.from_nth_gen:
-            check = np.abs(metric - self.metric_list[-1]) < self.tolerance
+            check = np.abs(self.metric_list[-1] - self.metric_list[-2]) < self.tolerance
             self.check_list = np.append(self.check_list, check)
         if nth_gen >= (self.from_nth_gen + self.patience):
             is_all_under_threshold = self.check_list[-self.patience:].all()            
@@ -110,7 +110,12 @@ class ImpAv(object):
         else:
             return False
         
-        
+estop = ImpAv()
+for i in range(10):
+    print(estop.MeetStoppingCriterion(nth_gen=i, fitness=np.random.rand()))       
+    
+estop.metric_list
+estop.check_list
 
 class MovPar(object):
     
@@ -146,16 +151,27 @@ class MaxDist(object):
                 
         self.from_nth_gen = 0
         self.tolerance = 1E-10
+
+        # Container
+        self.metric_list = np.empty(shape=(0,1))
                    
     def MeetStoppingCriterion(self, fitness, nth_gen):
         
         if nth_gen >= self.from_nth_gen:
             best_fitness = np.min(fitness)
             worst_fitness = np.max(fitness)
-            self.metric = worst_fitness - best_fitness
-            return self.metric < self.tolerance        
+            metric = worst_fitness - best_fitness
+            self.metric_list = np.append(self.metric_list, metric)
+            return metric < self.tolerance        
         else:
             return False
+        
+estop = MaxDist()
+for i in range(10):
+    print(estop.MeetStoppingCriterion(nth_gen=i, fitness=np.random.uniform(size=10)))       
+    
+estop.metric_list
+
             
 class MaxDistPar(object):
     """
@@ -166,6 +182,9 @@ class MaxDistPar(object):
                 
         self.from_nth_gen = 0
         self.tolerance = 1E-10
+        
+        # Container
+        self.metric_list = np.empty(shape=(0,1))        
                    
     def MeetStoppingCriterion(self, population, best_idx, nth_gen):
         
@@ -175,9 +194,16 @@ class MaxDistPar(object):
         for idx in range(len(population)):
             diff[idx] = np.linalg.norm(population[idx] - population[best_idx])
             
-        self.metric = np.max(diff)       
-        return self.metric < self.tolerance 
+        metric = np.max(diff)
+        self.metric_list = np.append(self.metric_list, metric)
+        return metric < self.tolerance 
     
+estop = MaxDistPar()
+for i in range(10):
+    print(estop.MeetStoppingCriterion(nth_gen=i, best_idx=1, population=np.random.uniform(size=(4,5))))       
+    
+estop.metric_list
+
 
 def StoppingCriterion(criterion):
         
@@ -193,8 +219,9 @@ def StoppingCriterion(criterion):
         
     return criteria_func_map[criterion]
 
-StoppingCriterion(criterion='impbest')      
-        
+
+sc = StoppingCriterion(criterion='impbest')
+
         
 if __name__ == '__main__':
     m_list = np.asarray([1]*18)
