@@ -70,7 +70,7 @@ class ImpBestObj(object):
             self.metric_list = np.append(self.metric_list, fitness[best_idx])
             check = np.abs(fitness[best_idx] - self.metric_list[-1]) < self.tolerance
             self.check_list = np.append(self.check_list, check)
-            if nth_gen >= (self.from_nth_gen + self.patience):
+            if nth_gen >= (self.from_nth_gen + self.patience - 1):
                 is_all_under_threshold = self.check_list[-self.patience:].all()            
                 return is_all_under_threshold
             else:
@@ -216,7 +216,7 @@ class MaxDistObj(object):
 
 class MaxDistQuickObj(object):    
     """
-    Checks whether the max distance (objective space) of the 'p_best' % best individuals 
+    Checks whether the max distance (objective space) of the 'p_best' % (min 3) best individuals 
     within the population is under a given threshold ('tolerance') from the individual of best fitness 
     in a given generation.
     'from_nth_gen' parameter means an initial number of generations without checking the improvement.
@@ -234,12 +234,17 @@ class MaxDistQuickObj(object):
     def MeetCriterion(self, fitness: float, best_idx: int, nth_gen: int) -> bool:
         
         if nth_gen >= self.from_nth_gen:
-            k = np.round(len(fitness) * self.p_best)
+            n_individuals = len(fitness)
+            if n_individuals < 3:
+                raise ValueError('Number of individuals in a generation should be higher than or equal to 3')
+            # assert n_individuals >= 3, 'Number of individuals in a generation should be higher than 3'
+            k = np.round(n_individuals * self.p_best)
+            k = max(k, 3)
             k_best_idx = np.argsort(fitness)[:k]
             # Container
             diff = np.empty(shape=(0,1))
             for idx in k_best_idx:
-                diff[idx] = fitness[idx] - fitness[best_idx]
+                diff = np.append(diff, fitness[idx] - fitness[best_idx])
             metric = np.max(diff)
             self.metric_list = np.append(self.metric_list, metric)
             return metric < self.tolerance        
@@ -269,9 +274,9 @@ class AvgDistObj(object):
             diff = np.empty(shape=(0,1))
             
             for idx in range(len(fitness)):
-                diff[idx] = fitness[idx] - fitness[best_idx]
+                diff = np.append(diff, fitness[idx] - fitness[best_idx])
                 
-            metric = np.mean(fitness)
+            metric = np.mean(diff)
             self.metric_list = np.append(self.metric_list, metric)
             return metric < self.tolerance        
         else:
@@ -301,7 +306,7 @@ class AvgDistPar(object):
             diff = np.empty(shape=(0, population.ndim))
             
             for idx in range(len(population)):
-                diff[idx] = np.linalg.norm(population[idx] - population[best_idx])
+                diff = np.append(diff, np.linalg.norm(population[idx] - population[best_idx]))
                 
             metric = np.mean(diff)
             self.metric_list = np.append(self.metric_list, metric)

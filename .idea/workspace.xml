@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="be6196e6-c6a9-462b-8fac-893bc8e48ee1" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="246DOhjwukc9pMv2B6UBk203wui" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="RunManager" selected="Python tests.Unittests in unit_test_MaxDistObj.py">
+    <configuration name="Unittests for unit_test_MaxDistQuickObj.TestMaxDistQuickObj" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <module name="Evolutionary-Algorithms" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Differential_Evolution2/unit_test/testing_StoppingCriterion" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;unit_test_MaxDistQuickObj.TestMaxDistQuickObj&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests for unit_test_MaxDistQuickObj.TestMaxDistQuickObj.test_MaxDistQuickObj_case1" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <module name="Evolutionary-Algorithms" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Differential_Evolution2/unit_test/testing_StoppingCriterion" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;unit_test_MaxDistQuickObj.TestMaxDistQuickObj.test_MaxDistQuickObj_case1&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests for unit_test_MaxDistQuickObj.TestMaxDistQuickObj.test_MaxDistQuickObj_case4" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <module name="Evolutionary-Algorithms" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Differential_Evolution2/unit_test/testing_StoppingCriterion" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;unit_test_MaxDistQuickObj.TestMaxDistQuickObj.test_MaxDistQuickObj_case4&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests for unit_test_MaxDistQuickObj.TestStoppingCriteria.test_MaxDistQuickObj_case1" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <module name="Evolutionary-Algorithms" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Differential_Evolution2/unit_test/testing_StoppingCriterion" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;unit_test_MaxDistQuickObj.TestStoppingCriteria.test_MaxDistQuickObj_case1&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests in unit_test_MaxDistObj.py" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <module name="Evolutionary-Algorithms" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Differential_Evolution2/unit_test/testing_StoppingCriterion" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/Differential_Evolution2/unit_test/testing_StoppingCriterion/unit_test_MaxDistObj.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python tests.Unittests in unit_test_MaxDistObj.py" />
+        <item itemvalue="Python tests.Unittests for unit_test_MaxDistQuickObj.TestMaxDistQuickObj.test_MaxDistQuickObj_case1" />
+        <item itemvalue="Python tests.Unittests for unit_test_MaxDistQuickObj.TestMaxDistQuickObj" />
+        <item itemvalue="Python tests.Unittests for unit_test_MaxDistQuickObj.TestMaxDistQuickObj.test_MaxDistQuickObj_case4" />
+        <item itemvalue="Python tests.Unittests for unit_test_MaxDistQuickObj.TestStoppingCriteria.test_MaxDistQuickObj_case1" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="be6196e6-c6a9-462b-8fac-893bc8e48ee1" name="Default Changelist" comment="" />
+      <created>1642942112579</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1642942112579</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="137" y="19" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1642942170602">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state x="137" y="19" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1366.728@0.0.1366.728" timestamp="1642942170602" />
+    <state width="1345" height="170" key="GridCell.Tab.0.bottom" timestamp="1642981058418">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state width="1345" height="170" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1642981058418" />
+    <state width="1345" height="170" key="GridCell.Tab.0.center" timestamp="1642981058418">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state width="1345" height="170" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1642981058418" />
+    <state width="1345" height="170" key="GridCell.Tab.0.left" timestamp="1642981058418">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state width="1345" height="170" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1642981058418" />
+    <state width="1345" height="170" key="GridCell.Tab.0.right" timestamp="1642981058418">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state width="1345" height="170" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1642981058418" />
+  </component>
+</project>
