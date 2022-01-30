@@ -53,22 +53,23 @@ class ImpBestObj(StoppingCriterion):
     """    
     def __init__(self):
                 
-        self.from_nth_gen = 0
-        self.patience = 5
-        self.tolerance = 1E-10
+        self.from_nth_gen: int = 10
+        self.patience: int = 15
+        self.tolerance: float = 1E-10
         
         # Container
-        self.metric_list = np.empty(shape=(0,1))
-        self.check_list = np.empty(shape=(0,1))
+        self.metric_list: float = np.empty(shape=(0,1))
+        self.check_list: bool = np.empty(shape=(0,1))
             
         
     def meet_criterion(self, population: float, fitness: float, best_idx: int, nth_gen: int) -> bool: 
         
         if nth_gen >= self.from_nth_gen:
             self.metric_list = np.append(self.metric_list, fitness[best_idx])
-            check = np.abs(fitness[best_idx] - self.metric_list[-1]) < self.tolerance
-            self.check_list = np.append(self.check_list, check)
-            if nth_gen >= (self.from_nth_gen + self.patience - 1):
+            if nth_gen >= (self.from_nth_gen + 1):
+                check = np.abs(fitness[best_idx] - self.metric_list[-1]) < self.tolerance
+                self.check_list = np.append(self.check_list, check)
+            if nth_gen >= (self.from_nth_gen + self.patience):
                 is_all_under_threshold = self.check_list[-self.patience:].all()            
                 return is_all_under_threshold
             else:
@@ -162,12 +163,13 @@ class ImpAvgPar(StoppingCriterion):
             diff = np.empty(shape=(0, population.ndim))
             
             for idx in range(len(population)):
-                diff[idx] = np.linalg.norm(population[idx] - population[best_idx])
+                diff = np.append(diff, np.linalg.norm(population[idx] - population[best_idx]))
                 
             metric = np.mean(diff)
             self.metric_list = np.append(self.metric_list, metric)
-            check = np.abs(self.metric_list[-1] - self.metric_list[-2]) < self.tolerance
-            self.check_list = np.append(self.check_list, check)
+            if nth_gen > (self.from_nth_gen + 1): 
+                check = np.abs(self.metric_list[-1] - self.metric_list[-2]) < self.tolerance
+                self.check_list = np.append(self.check_list, check)
             if nth_gen >= (self.from_nth_gen + self.patience):
                 is_all_under_threshold = self.check_list[-self.patience:].all()            
                 return is_all_under_threshold
@@ -317,30 +319,6 @@ class AvgDistPar(StoppingCriterion):
 #     print(estop.MeetStoppingCriterion(nth_gen=i, best_idx=1, population=np.random.uniform(size=(4,5))))       
     
 # estop.metric_list
-
-
-# def StoppingCriterion(criterion):
-        
-#     criteria_fn_map = {
-#         'imp_best_obj': ImpBestObj,
-#         'imp_avg_obj': ImpAvgObj,
-#         'imp_avg_par': ImpAvgPar,
-#         'max_dist_obj': MaxDistObj,
-#         'max_distquick_obj': MaxDistQuickObj,
-#         'avg_dist_obj': AvgDistObj,
-#         'avg_dist_par': AvgDistPar
-#     }
-    
-#     assert criterion in criteria_fn_map.keys(), 'Invalid criterion'
-        
-#     return criteria_fn_map[criterion]
-
-
-# sc = StoppingCriterion(criterion='impbest')
-
-
-
-
     
     
 def criteria_fn_map(criterion):
@@ -371,28 +349,28 @@ if __name__ == '__main__':
     termination.meet_criterion(population, fitness, best_idx, nth_gen)
     pass
 
-import json
-import os
+# import json
+# import os
 
-stopping_criterion_fn_dictionary = {
-        'imp_best_obj': 
-            {'fn': ImpBestObj, 'args': [fitness, best_idx, nth_gen]},
-        'imp_avg_obj': 
-            {'fn': ImpAvgObj, 'args': [fitness, nth_gen]},
-        'imp_avg_par': 
-            {'fn': ImpAvgPar, 'args': [population, best_idx, nth_gen]},
-        'max_dist_obj': 
-            {'fn': MaxDistObj, 'args': [fitness, nth_gen]},
-        'max_distquick_obj': 
-            {'fn': MaxDistQuickObj, 'args': [fitness, best_idx, nth_gen]},
-        'avg_dist_obj': 
-            {'fn': AvgDistObj, 'args': [fitness, best_idx, nth_gen]},
-        'avg_dist_par': 
-            {'fn': AvgDistPar, 'args': [population, best_idx, nth_gen]}
-    }
+# stopping_criterion_fn_dictionary = {
+#         'imp_best_obj': 
+#             {'fn': ImpBestObj, 'args': [fitness, best_idx, nth_gen]},
+#         'imp_avg_obj': 
+#             {'fn': ImpAvgObj, 'args': [fitness, nth_gen]},
+#         'imp_avg_par': 
+#             {'fn': ImpAvgPar, 'args': [population, best_idx, nth_gen]},
+#         'max_dist_obj': 
+#             {'fn': MaxDistObj, 'args': [fitness, nth_gen]},
+#         'max_distquick_obj': 
+#             {'fn': MaxDistQuickObj, 'args': [fitness, best_idx, nth_gen]},
+#         'avg_dist_obj': 
+#             {'fn': AvgDistObj, 'args': [fitness, best_idx, nth_gen]},
+#         'avg_dist_par': 
+#             {'fn': AvgDistPar, 'args': [population, best_idx, nth_gen]}
+#     }
     
     
-source_loc = os.getcwd() + '/'
+# source_loc = os.getcwd() + '/'
 
-with open(source_loc + 'stopping_criterion_fn_dictionary.json', "w") as outfile:
-    json.dump(stopping_criterion_fn_dictionary, outfile)
+# with open(source_loc + 'stopping_criterion_fn_dictionary.json', "w") as outfile:
+#     json.dump(stopping_criterion_fn_dictionary, outfile)

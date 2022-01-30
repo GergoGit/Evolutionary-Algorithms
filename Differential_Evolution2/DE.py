@@ -337,31 +337,45 @@ class DE(object):
 
 if __name__ == "__main__":
     
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
         
-    obj_func = lambda x: sum(x**2)/len(x)
-    func_bounds = [(-50,50)]*2
-    runs = 5
-    result = list(differential_evolution(objective_func=obj_func, func_bounds=func_bounds, de_type='DE/rand/1/bin', runs=runs, generations=300, patience=20))
-    result = list(ob_de(objective_func=obj_func, func_bounds=func_bounds, runs=runs, generations=300))
-    result = list(sa_de(objective_func=obj_func, func_bounds=func_bounds, runs=runs, generations=300,
-                        de_strategy_1='DE/rand/1/bin',
-                        de_strategy_2='DE/best/1/bin',
-                        learning_period = 50,
-                        patience=20)
-                  )    
+    # obj_func = lambda x: sum(x**2)/len(x)
+    # func_bounds = [(-50,50)]*2
+    # runs = 5
+    # result = list(differential_evolution(objective_func=obj_func, func_bounds=func_bounds, de_type='DE/rand/1/bin', runs=runs, generations=300, patience=20))
+    # result = list(ob_de(objective_func=obj_func, func_bounds=func_bounds, runs=runs, generations=300))
+    # result = list(sa_de(objective_func=obj_func, func_bounds=func_bounds, runs=runs, generations=300,
+    #                     de_strategy_1='DE/rand/1/bin',
+    #                     de_strategy_2='DE/best/1/bin',
+    #                     learning_period = 50,
+    #                     patience=20)
+    #               )    
     
-    for run_num in range(runs):
-        run, gen, x, f = zip(*[element for element in result if element[0]==run_num])
-        plt.yscale('log', base=2) 
-        plt.plot(f, label='run_num={}'.format(run_num))
-    plt.legend()
+    # for run_num in range(runs):
+    #     run, gen, x, f = zip(*[element for element in result if element[0]==run_num])
+    #     plt.yscale('log', base=2) 
+    #     plt.plot(f, label='run_num={}'.format(run_num))
+    # plt.legend()
     
-    
+    import matplotlib.pyplot as plt
     from ObjectiveFunctions import Beale, Rastrigin
     from StoppingCriterion import ImpBestObj
     fn = Rastrigin(2)  
-    optimiser = DE(fn, 'imp_best_obj')       
+    optimiser = DE(objective=fn, stopping_criterion='imp_best_obj')
+    optimiser.termination.from_nth_gen = 50
+    optimiser.termination.patience = 20
     optimiser.Run()
+    
+    plt.yscale('log', base=2) 
+    plt.plot(optimiser.best_fitness)
+    plt.legend()    
+    
+    optimiser.dim_num
+    optimiser.best_fitness
+    optimiser.termination.metric_list
+    optimiser.termination.check_list
     fn.minima_loc
     fn.minima
+    
+    
+
