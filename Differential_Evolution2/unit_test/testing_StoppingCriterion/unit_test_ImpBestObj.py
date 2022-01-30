@@ -41,7 +41,10 @@ if __name__ == '__main__':
     # Pycharm
     # import coverage
     # coverage run Differential_Evolution2\unit_test\testing_StoppingCriterion\unit_test_MaxDistObj.py
+    # coverage run -m unittest Differential_Evolution2\unit_test\testing_StoppingCriterion\unit_test_MaxDistObj.py
     # coverage report
     # coverage report -m
     # coverage html
     # index.html file
+    
+    # pip install pytest-cov

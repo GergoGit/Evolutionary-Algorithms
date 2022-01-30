@@ -1,0 +1,16 @@
+stopping_criterion_fn_dictionary = {
+        'imp_best_obj':
+            {'fn': ImpBestObj, 'args': [fitness, best_idx, nth_gen]},
+        'imp_avg_obj':
+            {'fn': ImpAvgObj, 'args': [fitness, nth_gen]},
+        'imp_avg_par':
+            {'fn': ImpAvgPar, 'args': [population, best_idx, nth_gen]},
+        'max_dist_obj':
+            {'fn': MaxDistObj, 'args': [fitness, nth_gen]},
+        'max_distquick_obj':
+            {'fn': MaxDistQuickObj, 'args': [fitness, best_idx, nth_gen]},
+        'avg_dist_obj':
+            {'fn': AvgDistObj, 'args': [fitness, best_idx, nth_gen]},
+        'avg_dist_par':
+            {'fn': AvgDistPar, 'args': [population, best_idx, nth_gen]}
+    }

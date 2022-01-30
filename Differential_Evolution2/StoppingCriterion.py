@@ -30,23 +30,21 @@ TODO: combine criteria
 
 import numpy as np
 # import typing
+from abc import ABC, abstractmethod
 
-class EarlyStopping(object):
-    """
+class StoppingCriterion(ABC):
     
-    """
+    @abstractmethod
+    def meet_criterion(self, population: float, fitness: float, best_idx: int, nth_gen: int):
+        pass
     
-    def __init__(self):
-        self.from_nth_gen = 0
-        self.patience = 10
-        self.tolerance = 1E-10
-        self.n_best = 5
+
 
 ########################################
 # Improvement-based using Time Window
 ########################################
 
-class ImpBestObj(object):
+class ImpBestObj(StoppingCriterion):
     """
     Checks whether the improvement of the best objective function value is below 
     a threshold ('tolerance') for a number of generations ('patience'). 
@@ -64,7 +62,7 @@ class ImpBestObj(object):
         self.check_list = np.empty(shape=(0,1))
             
         
-    def MeetCriterion(self, fitness: float, best_idx: int, nth_gen: int) -> bool: 
+    def meet_criterion(self, population: float, fitness: float, best_idx: int, nth_gen: int) -> bool: 
         
         if nth_gen >= self.from_nth_gen:
             self.metric_list = np.append(self.metric_list, fitness[best_idx])
@@ -95,7 +93,7 @@ class ImpBestObj(object):
 # estop.metric_list
 # dir(estop)
 
-class ImpAvgObj(object):
+class ImpAvgObj(StoppingCriterion):
     """
     Checks whether the improvement of the average objective function value is below 
     a threshold ('tolerance') for a number of generations ('patience'). 
@@ -114,7 +112,7 @@ class ImpAvgObj(object):
         self.check_list = np.empty(shape=(0,1))
             
         
-    def MeetCriterion(self, fitness: float, nth_gen: int) -> bool:
+    def meet_criterion(self, population: float, fitness: float, best_idx: int, nth_gen: int) -> bool:
         
         if nth_gen > self.from_nth_gen:
             metric = np.mean(fitness)
@@ -136,7 +134,7 @@ class ImpAvgObj(object):
 # estop.metric_list
 # estop.check_list
 
-class ImpAvgPar(object):
+class ImpAvgPar(StoppingCriterion):
     """
     Checks whether the improvement of the average objective function value is below 
     a threshold ('tolerance') for a number of generations ('patience'). 
@@ -157,7 +155,7 @@ class ImpAvgPar(object):
         self.check_list = np.empty(shape=(0,1))
             
         
-    def MeetCriterion(self, population: float, best_idx: int, nth_gen: int) -> bool:
+    def meet_criterion(self, population: float, fitness: float, best_idx: int, nth_gen: int) -> bool:
         
         if nth_gen > self.from_nth_gen:
             # Container
@@ -182,7 +180,7 @@ class ImpAvgPar(object):
 # Distribusion-based using metric related to 1 generation
 ##########################################################
 
-class MaxDistObj(object):    
+class MaxDistObj(StoppingCriterion):    
     """
     Checks whether the max distance (objective space) of the individuals within the population 
     is under a given threshold ('tolerance') from the individual of best fitness in a given generation.
@@ -197,7 +195,7 @@ class MaxDistObj(object):
         # Container
         self.metric_list = np.empty(shape=(0,1))
                    
-    def MeetCriterion(self, fitness: float, nth_gen: int) -> bool:
+    def meet_criterion(self, population: float, fitness: float, best_idx: int, nth_gen: int) -> bool:
         
         if nth_gen >= self.from_nth_gen:
             best_fitness = np.min(fitness)
@@ -214,7 +212,7 @@ class MaxDistObj(object):
     
 # estop.metric_list
 
-class MaxDistQuickObj(object):    
+class MaxDistQuickObj(StoppingCriterion):    
     """
     Checks whether the max distance (objective space) of the 'p_best' % (min 3) best individuals 
     within the population is under a given threshold ('tolerance') from the individual of best fitness 
@@ -231,7 +229,7 @@ class MaxDistQuickObj(object):
         # Container
         self.metric_list = np.empty(shape=(0,1))
                    
-    def MeetCriterion(self, fitness: float, best_idx: int, nth_gen: int) -> bool:
+    def meet_criterion(self, population: float, fitness: float, best_idx: int, nth_gen: int) -> bool:
         
         if nth_gen >= self.from_nth_gen:
             n_individuals = len(fitness)
@@ -252,7 +250,7 @@ class MaxDistQuickObj(object):
             return False
 
 
-class AvgDistObj(object):    
+class AvgDistObj(StoppingCriterion):    
     """
     Checks whether the average distance (objective space) of the individuals within the population  
     from the individual of best fitness in a given generation is under a given threshold ('tolerance') 
@@ -267,7 +265,7 @@ class AvgDistObj(object):
         # Container
         self.metric_list = np.empty(shape=(0,1))
                    
-    def MeetCriterion(self, fitness: float, best_idx: int, nth_gen: int) -> bool:
+    def meet_criterion(self, population: float, fitness: float, best_idx: int, nth_gen: int) -> bool:
                 
         if nth_gen >= self.from_nth_gen:
             # Container
@@ -284,7 +282,7 @@ class AvgDistObj(object):
     
     
 
-class AvgDistPar(object):
+class AvgDistPar(StoppingCriterion):
     """
     Checks whether the max (Euclidean) distance (objective space) of the individuals within the population 
     is under a given threshold ('tolerance') from the individual of best fitness in a given generation.
@@ -299,7 +297,7 @@ class AvgDistPar(object):
         # Container
         self.metric_list = np.empty(shape=(0,1))        
                    
-    def MeetCriterion(self, population: float, best_idx: int, nth_gen: int) -> bool:
+    def meet_criterion(self, population: float, fitness: float, best_idx: int, nth_gen: int) -> bool:
         
         if nth_gen >= self.from_nth_gen:
             # Container
@@ -321,9 +319,33 @@ class AvgDistPar(object):
 # estop.metric_list
 
 
-def StoppingCriterion(criterion):
+# def StoppingCriterion(criterion):
         
-    criteria_fn_map = {
+#     criteria_fn_map = {
+#         'imp_best_obj': ImpBestObj,
+#         'imp_avg_obj': ImpAvgObj,
+#         'imp_avg_par': ImpAvgPar,
+#         'max_dist_obj': MaxDistObj,
+#         'max_distquick_obj': MaxDistQuickObj,
+#         'avg_dist_obj': AvgDistObj,
+#         'avg_dist_par': AvgDistPar
+#     }
+    
+#     assert criterion in criteria_fn_map.keys(), 'Invalid criterion'
+        
+#     return criteria_fn_map[criterion]
+
+
+# sc = StoppingCriterion(criterion='impbest')
+
+
+
+
+    
+    
+def criteria_fn_map(criterion):
+    
+    stopping_criterion_fn_map = {
         'imp_best_obj': ImpBestObj,
         'imp_avg_obj': ImpAvgObj,
         'imp_avg_par': ImpAvgPar,
@@ -332,13 +354,12 @@ def StoppingCriterion(criterion):
         'avg_dist_obj': AvgDistObj,
         'avg_dist_par': AvgDistPar
     }
-    
-    assert criterion in criteria_fn_map.keys(), 'Invalid criterion'
+            
+    assert criterion in stopping_criterion_fn_map.keys(), 'Invalid criterion'
         
-    return criteria_fn_map[criterion]
+    return stopping_criterion_fn_map[criterion]
 
 
-# sc = StoppingCriterion(criterion='impbest')
 
         
 if __name__ == '__main__':
@@ -346,4 +367,32 @@ if __name__ == '__main__':
     # stopping = SingleObjectiveEarlyStopping()
     # stopping.patience = 10
     # stopping.MeetStoppingCriterion(metric_list=m_list, nth_gen=12)
+    termination = criteria_fn_map('imp_best_obj')()
+    termination.meet_criterion(population, fitness, best_idx, nth_gen)
     pass
+
+import json
+import os
+
+stopping_criterion_fn_dictionary = {
+        'imp_best_obj': 
+            {'fn': ImpBestObj, 'args': [fitness, best_idx, nth_gen]},
+        'imp_avg_obj': 
+            {'fn': ImpAvgObj, 'args': [fitness, nth_gen]},
+        'imp_avg_par': 
+            {'fn': ImpAvgPar, 'args': [population, best_idx, nth_gen]},
+        'max_dist_obj': 
+            {'fn': MaxDistObj, 'args': [fitness, nth_gen]},
+        'max_distquick_obj': 
+            {'fn': MaxDistQuickObj, 'args': [fitness, best_idx, nth_gen]},
+        'avg_dist_obj': 
+            {'fn': AvgDistObj, 'args': [fitness, best_idx, nth_gen]},
+        'avg_dist_par': 
+            {'fn': AvgDistPar, 'args': [population, best_idx, nth_gen]}
+    }
+    
+    
+source_loc = os.getcwd() + '/'
+
+with open(source_loc + 'stopping_criterion_fn_dictionary.json', "w") as outfile:
+    json.dump(stopping_criterion_fn_dictionary, outfile)

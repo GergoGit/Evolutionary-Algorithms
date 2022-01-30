@@ -78,16 +78,24 @@ ODE - OPPOSITION-BASED DE
 # TODO: stopping criterion, Visualization, mutation factor decay, parallelization
 
 import numpy as np
-
+import StoppingCriterion
 
 class DE(object):
     def __init__(self, 
                  objective, 
+                 stopping_criterion=None,
                  de_type='DE/best/1/bin', 
                  mutation_factor=0.8, 
                  crossover_prob=0.7, 
                  population_size=30, 
                  generation_num=300):
+        
+        
+        
+        if stopping_criterion is not None:
+            self.termination = StoppingCriterion.criteria_fn_map(stopping_criterion)()
+        else:
+            self.termination = None
         
         self.objective = objective
         self.obj_func = objective.evaluate
@@ -188,136 +196,142 @@ class DE(object):
         mutant = best + self.mutation_factor * (random_individuals[0] - random_individuals[1])
         return mutant
     
+        
     def Run(self):
-        population, fitness, best_indiv, best = self.InitializePopulation()
-        # best_list = [best]
+        population, fitness, best_idx, best = self.InitializePopulation()
         # Mutation =  self.variant_func()
-        for gen in range(self.generation_num):
-            for indiv in range(self.population_size): 
+        self.best_par = np.empty(shape=(0, self.dim_num))
+        self.best_fitness = np.empty(shape=(0, 1))
+        
+        for nth_gen in range(self.generation_num):
+            for indiv_idx in range(self.population_size): 
                 # mutant = Mutation(*self.input_func(population, indiv, best_indiv))
-                mutant = self.mutation(population, indiv, best)
+                mutant = self.mutation(population, indiv_idx, best)
                 mutant = self.check_search_space(mutant)
-                offspring = self.Crossover(mutant, population[indiv])
+                offspring = self.Crossover(mutant, population[indiv_idx])
                 offspring_fitness = self.obj_func(offspring)
-                if offspring_fitness < fitness[indiv]:
-                    fitness[indiv] = offspring_fitness
-                    population[indiv] = offspring
-                    if offspring_fitness < fitness[best_indiv]:
-                        best_indiv = indiv
-                        best = offspring
-            # best_list.append(best)
-            # yield gen, best, fitness[best_indiv]
-        return best, fitness[best_indiv]
-            
-
-
-def ob_sampling(population_normalized, population_denormalized, objective_func, min_bound, dimension_range, population_size, dimensions):
-    opposition_normalized = np.zeros_like(population_normalized)
-    for i in range(population_size):
-        for j in range(dimensions):
-            opposition_normalized[i,j] = 1 - population_normalized[i,j]
-    opposition_denormalized = min_bound + opposition_normalized * dimension_range
-    population_and_opposition_denormalized = np.concatenate((population_denormalized, opposition_denormalized), axis=0)
-    fitness_all = np.asarray([objective_func(individual) for individual in population_and_opposition_denormalized])
-    n_best_idx = fitness_all.argsort()[:population_size]
-    new_population_normalized = np.concatenate((population_normalized, opposition_normalized), axis=0)[n_best_idx]
-    new_population_denormalized = population_and_opposition_denormalized[n_best_idx]
-    new_fitness = np.asarray([objective_func(individual) for individual in new_population_denormalized])
-    best_idx = np.argmin(new_fitness)
-    return new_population_normalized, new_population_denormalized, new_fitness, best_idx, new_population_denormalized[best_idx]
-
-
-def ob_de(objective_func, 
-            func_bounds, 
-            de_type='DE/rand/1/bin', 
-            mutation_factor=0.8, 
-            crossover_probability=0.7, 
-            jumping_rate=0.3,
-            population_size=30, 
-            generations=1000, 
-            runs=1, 
-            patience=20,
-            epsilon=1E-10,
-            verbose=0):
-    """
-    We expect it is a minimization problem.
-
-    Parameters
-    ----------
-    objection_func : TYPE
-        DESCRIPTION.
-    func_bounds : TYPE
-        DESCRIPTION.
-    de_type : TYPE, optional
-        DESCRIPTION. The default is 'DE/rand/1/exp'.
-    mutation_factor : TYPE, optional
-        DESCRIPTION. The default is 0.8.
-    crossover_probability : TYPE, optional
-        DESCRIPTION. The default is 0.7.
-    jumping_rate : TYPE, optional
-        DESCRIPTION. The default is 0.3.
-    population_size : TYPE, optional
-        DESCRIPTION. The default is 30.
-    generations : TYPE, optional
-        DESCRIPTION. The default is 1000.
-    runs : TYPE, optional
-        DESCRIPTION. The default is 1.
-    patience : TYPE, optional
-        DESCRIPTION. The default is 20.
-    epsilon : TYPE, optional
-        DESCRIPTION. The default is 1E-10.
-    verbose : TYPE, optional
-        DESCRIPTION. The default is 0.
-
-    Yields
-    ------
-    run_num : TYPE
-        DESCRIPTION.
-    gen_num : TYPE
-        DESCRIPTION.
-    best : TYPE
-        DESCRIPTION.
-    TYPE
-        DESCRIPTION.
-
-    """
-    _, individual_selection_type, n_difference_vectors, crossover_type, = de_type.split("/")
-    n_difference_vectors = int(n_difference_vectors)
-    
-    dimensions = len(func_bounds)
-    min_bound = np.asarray([min(dim) for dim in func_bounds])
-    max_bound = np.asarray([max(dim) for dim in func_bounds])
-    dimension_range = np.fabs(min_bound - max_bound)
-    mutation = variant_func(individual_selection_type, n_difference_vectors)
-    for run_num in range(runs):
-        population_normalized = np.random.rand(population_size, dimensions)
-        population_denormalized = min_bound + population_normalized * dimension_range
-        population_normalized, population_denormalized, fitness, best_idx, best = ob_sampling(population_normalized, population_denormalized, obj_func, min_bound, dimension_range, population_size, dimensions)
-        best_list = [best]
-        for gen_num in range(generations):
-            for idx in range(population_size):
-                # Mutation
-                mutant = mutation(*input_func(individual_selection_type, n_difference_vectors, mutation_factor, population_normalized, idx, best_idx))
-                # Crossover
-                crossover_vector = crossover(crossover_type, dimensions, crossover_probability)
-                offspring_normalized = np.where(crossover_vector, mutant, population_normalized[idx])                
-                offspring_denormalized = min_bound + offspring_normalized * dimension_range
-                offspring_fitness = obj_func(offspring_denormalized)
-                if offspring_fitness < fitness[idx]:
-                    fitness[idx] = offspring_fitness
-                    population_normalized[idx] = offspring_normalized
+                if offspring_fitness < fitness[indiv_idx]:
+                    fitness[indiv_idx] = offspring_fitness
+                    population[indiv_idx] = offspring
                     if offspring_fitness < fitness[best_idx]:
-                        best_idx = idx
-                        best = offspring_denormalized
-            
-            if np.random.rand() < jumping_rate:
-                population_normalized, population_denormalized, fitness, best_idx, best = ob_sampling(population_normalized, population_denormalized, obj_func, min_bound, dimension_range, population_size, dimensions)
-            
-            if patience != None and gen_num >= patience:
-                if (np.asarray([element-best for element in best_list[-patience:]]) < [epsilon]*dimensions).all():
+                        best_idx = indiv_idx
+                        best = offspring
+            self.best_par = np.append(self.best_par, best)
+            self.best_fitness = np.append(self.best_fitness, fitness[best_idx])
+            if self.termination is not None:
+                if self.termination.meet_criterion(population, fitness, best_idx, nth_gen):
                     break
-            best_list.append(best)
-            yield run_num, gen_num, best, fitness[best_idx]
+
+            
+
+
+# def ob_sampling(population_normalized, population_denormalized, objective_func, min_bound, dimension_range, population_size, dimensions):
+#     opposition_normalized = np.zeros_like(population_normalized)
+#     for i in range(population_size):
+#         for j in range(dimensions):
+#             opposition_normalized[i,j] = 1 - population_normalized[i,j]
+#     opposition_denormalized = min_bound + opposition_normalized * dimension_range
+#     population_and_opposition_denormalized = np.concatenate((population_denormalized, opposition_denormalized), axis=0)
+#     fitness_all = np.asarray([objective_func(individual) for individual in population_and_opposition_denormalized])
+#     n_best_idx = fitness_all.argsort()[:population_size]
+#     new_population_normalized = np.concatenate((population_normalized, opposition_normalized), axis=0)[n_best_idx]
+#     new_population_denormalized = population_and_opposition_denormalized[n_best_idx]
+#     new_fitness = np.asarray([objective_func(individual) for individual in new_population_denormalized])
+#     best_idx = np.argmin(new_fitness)
+#     return new_population_normalized, new_population_denormalized, new_fitness, best_idx, new_population_denormalized[best_idx]
+
+
+# def ob_de(objective_func, 
+#             func_bounds, 
+#             de_type='DE/rand/1/bin', 
+#             mutation_factor=0.8, 
+#             crossover_probability=0.7, 
+#             jumping_rate=0.3,
+#             population_size=30, 
+#             generations=1000, 
+#             runs=1, 
+#             patience=20,
+#             epsilon=1E-10,
+#             verbose=0):
+#     """
+#     We expect it is a minimization problem.
+
+#     Parameters
+#     ----------
+#     objection_func : TYPE
+#         DESCRIPTION.
+#     func_bounds : TYPE
+#         DESCRIPTION.
+#     de_type : TYPE, optional
+#         DESCRIPTION. The default is 'DE/rand/1/exp'.
+#     mutation_factor : TYPE, optional
+#         DESCRIPTION. The default is 0.8.
+#     crossover_probability : TYPE, optional
+#         DESCRIPTION. The default is 0.7.
+#     jumping_rate : TYPE, optional
+#         DESCRIPTION. The default is 0.3.
+#     population_size : TYPE, optional
+#         DESCRIPTION. The default is 30.
+#     generations : TYPE, optional
+#         DESCRIPTION. The default is 1000.
+#     runs : TYPE, optional
+#         DESCRIPTION. The default is 1.
+#     patience : TYPE, optional
+#         DESCRIPTION. The default is 20.
+#     epsilon : TYPE, optional
+#         DESCRIPTION. The default is 1E-10.
+#     verbose : TYPE, optional
+#         DESCRIPTION. The default is 0.
+
+#     Yields
+#     ------
+#     run_num : TYPE
+#         DESCRIPTION.
+#     gen_num : TYPE
+#         DESCRIPTION.
+#     best : TYPE
+#         DESCRIPTION.
+#     TYPE
+#         DESCRIPTION.
+
+#     """
+#     _, individual_selection_type, n_difference_vectors, crossover_type, = de_type.split("/")
+#     n_difference_vectors = int(n_difference_vectors)
+    
+#     dimensions = len(func_bounds)
+#     min_bound = np.asarray([min(dim) for dim in func_bounds])
+#     max_bound = np.asarray([max(dim) for dim in func_bounds])
+#     dimension_range = np.fabs(min_bound - max_bound)
+#     mutation = variant_func(individual_selection_type, n_difference_vectors)
+#     for run_num in range(runs):
+#         population_normalized = np.random.rand(population_size, dimensions)
+#         population_denormalized = min_bound + population_normalized * dimension_range
+#         population_normalized, population_denormalized, fitness, best_idx, best = ob_sampling(population_normalized, population_denormalized, obj_func, min_bound, dimension_range, population_size, dimensions)
+#         best_list = [best]
+#         for gen_num in range(generations):
+#             for idx in range(population_size):
+#                 # Mutation
+#                 mutant = mutation(*input_func(individual_selection_type, n_difference_vectors, mutation_factor, population_normalized, idx, best_idx))
+#                 # Crossover
+#                 crossover_vector = crossover(crossover_type, dimensions, crossover_probability)
+#                 offspring_normalized = np.where(crossover_vector, mutant, population_normalized[idx])                
+#                 offspring_denormalized = min_bound + offspring_normalized * dimension_range
+#                 offspring_fitness = obj_func(offspring_denormalized)
+#                 if offspring_fitness < fitness[idx]:
+#                     fitness[idx] = offspring_fitness
+#                     population_normalized[idx] = offspring_normalized
+#                     if offspring_fitness < fitness[best_idx]:
+#                         best_idx = idx
+#                         best = offspring_denormalized
+            
+#             if np.random.rand() < jumping_rate:
+#                 population_normalized, population_denormalized, fitness, best_idx, best = ob_sampling(population_normalized, population_denormalized, obj_func, min_bound, dimension_range, population_size, dimensions)
+            
+#             if patience != None and gen_num >= patience:
+#                 if (np.asarray([element-best for element in best_list[-patience:]]) < [epsilon]*dimensions).all():
+#                     break
+#             best_list.append(best)
+#             yield run_num, gen_num, best, fitness[best_idx]
             
 
 
@@ -344,9 +358,10 @@ if __name__ == "__main__":
     plt.legend()
     
     
-    from ObjectiveFunctions import Beale, Rastrigin        
+    from ObjectiveFunctions import Beale, Rastrigin
+    from StoppingCriterion import ImpBestObj
     fn = Rastrigin(2)  
-    optimiser = DE(fn)       
+    optimiser = DE(fn, 'imp_best_obj')       
     optimiser.Run()
     fn.minima_loc
     fn.minima
