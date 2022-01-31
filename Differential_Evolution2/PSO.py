@@ -56,9 +56,9 @@ class PSO(object):
     def initialize_population(self):
         population = self.min_bound + np.random.rand(self.population_size, self.dim_num) * self.dim_range
         fitness = np.asarray([self.obj_fn(individual) for individual in population])
-        best_indiv = np.argmin(fitness)
-        best = population[best_indiv]
-        return population, fitness, best_indiv, best
+        best_idx = np.argmin(fitness)
+        best = population[best_idx]
+        return population, fitness, best_idx, best
     
     
     def check_search_space(self, mutant: float):

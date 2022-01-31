@@ -115,11 +115,12 @@ class ImpAvgObj(StoppingCriterion):
         
     def meet_criterion(self, population: float, fitness: float, best_idx: int, nth_gen: int) -> bool:
         
-        if nth_gen > self.from_nth_gen:
+        if nth_gen >= self.from_nth_gen:
             metric = np.mean(fitness)
             self.metric_list = np.append(self.metric_list, metric)
-            check = np.abs(self.metric_list[-1] - self.metric_list[-2]) < self.tolerance
-            self.check_list = np.append(self.check_list, check)
+            if nth_gen >= (self.from_nth_gen + 1):
+                check = np.abs(self.metric_list[-1] - self.metric_list[-2]) < self.tolerance
+                self.check_list = np.append(self.check_list, check)
             if nth_gen >= (self.from_nth_gen + self.patience):
                 is_all_under_threshold = self.check_list[-self.patience:].all()            
                 return is_all_under_threshold
