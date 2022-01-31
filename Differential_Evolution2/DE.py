@@ -80,6 +80,96 @@ ODE - OPPOSITION-BASED DE
 import numpy as np
 import StoppingCriterion
 
+class VariantRandom:
+    
+    def __init__(self, n_difference_vectors, mutation_factor):
+        self.n_difference_vectors = n_difference_vectors
+        self.mutation_factor = mutation_factor
+    
+    def rand_1(self, random_individuals):
+        mutant = random_individuals[0] + self.mutation_factor * (random_individuals[1] - random_individuals[2])
+        return mutant
+    def rand_2(self, random_individuals):
+        mutant = random_individuals[0] + self.mutation_factor * (random_individuals[1] - random_individuals[2]) + self.mutation_factor * (random_individuals[3] - random_individuals[4])   
+        return mutant
+    
+    def subvariant_fn(self):
+        if self.n_difference_vectors == 1:
+            return self.rand_1
+        if self.n_difference_vectors == 2:
+            return self.rand_2
+    
+    def subvariant_fn_args(self, population, indiv_idx, best_idx):
+        idxs = [i for i in range(len(population)) if i != indiv_idx]
+        n_rand = 2 * self.n_difference_vectors + 1
+        random_individuals = population[np.random.choice(idxs, n_rand, replace = False)]
+        return random_individuals
+        
+class VariantBest:
+    
+    def __init__(self, n_difference_vectors, mutation_factor):
+        self.n_difference_vectors = n_difference_vectors
+        self.mutation_factor = mutation_factor
+    
+    def best_1(self, random_individuals, best):
+        mutant = best + self.mutation_factor * (random_individuals[0] - random_individuals[1])
+        return mutant
+    def best_2(self, random_individuals, best):
+        mutant =  best + self.mutation_factor * (random_individuals[0] - random_individuals[1]) + self.mutation_factor * (random_individuals[2] - random_individuals[3])
+        return mutant
+    
+    def subvariant_fn(self):
+        if self.n_difference_vectors == 1:
+            return self.best_1
+        if self.n_difference_vectors == 2:
+            return self.best_2
+    
+    def subvariant_fn_args(self, population, indiv_idx, best_idx):
+        idxs = [i for i in range(len(population)) if i != indiv_idx]
+        n_rand = 2 * self.n_difference_vectors
+        random_individuals = population[np.random.choice(idxs, n_rand, replace = False)]
+        return random_individuals, population[best_idx]
+    
+class VariantCurrentToBest:
+    
+    def __init__(self, n_difference_vectors: int, mutation_factor: float):
+        self.n_difference_vectors = n_difference_vectors
+        self.mutation_factor = mutation_factor
+    
+    def current_to_best_1(self, random_individuals: float, best: int, current: int):
+        mutant = current + self.mutation_factor * (best - random_individuals[0])
+        return mutant
+    def current_to_best_2(self, random_individuals, best, current):
+        mutant = current + self.mutation_factor * (best - random_individuals[0]) + self.mutation_factor * (random_individuals[1] - random_individuals[2])
+        return mutant
+    
+    def subvariant_fn(self):
+        if self.n_difference_vectors == 1:
+            return self.current_to_best_1
+        if self.n_difference_vectors == 2:
+            return self.current_to_best_2
+    
+    def subvariant_fn_args(self, population: float, indiv_idx: int, best_idx: int):
+        idxs = [i for i in range(len(population)) if i != indiv_idx]
+        n_rand = 2 * self.n_difference_vectors - 1
+        random_individuals = population[np.random.choice(idxs, n_rand, replace = False)]
+        return random_individuals, population[best_idx], population[indiv_idx]
+            
+
+def select_mutation_variant(individual_selection_type: str, 
+                            n_difference_vectors: int, 
+                            mutation_factor: float):
+    
+    if individual_selection_type == 'rand':
+        return VariantRandom(n_difference_vectors, mutation_factor)
+    if individual_selection_type == 'best':
+        return VariantBest(n_difference_vectors, mutation_factor)
+    if individual_selection_type == 'current-to-best':
+        return VariantCurrentToBest(n_difference_vectors, mutation_factor)
+
+
+
+
 class DE(object):
     def __init__(self, 
                  objective, 
@@ -90,15 +180,14 @@ class DE(object):
                  population_size=30, 
                  generation_num=300):
         
-        
-        
+                
         if stopping_criterion is not None:
             self.termination = StoppingCriterion.criteria_fn_map(stopping_criterion)()
         else:
             self.termination = None
         
         self.objective = objective
-        self.obj_func = objective.evaluate
+        self.obj_fn = objective.evaluate
         self.search_space = self.objective.search_space
         
         self.min_bound = np.asarray([min(dim) for dim in self.search_space])
@@ -113,16 +202,22 @@ class DE(object):
         
         _, self.individual_selection_type, n_difference_vectors, self.crossover_type, = de_type.split("/")
         self.n_difference_vectors = int(n_difference_vectors)
+        
+        self.M = select_mutation_variant(self.individual_selection_type,
+                                    self.n_difference_vectors,
+                                    self.mutation_factor)
+        
+        self.mutation = self.M.subvariant_fn()
                
         
-    def InitializePopulation(self):
+    def initialize_population(self):
         population = self.min_bound + np.random.rand(self.population_size, self.dim_num) * self.dim_range
-        fitness = np.asarray([self.obj_func(individual) for individual in population])
+        fitness = np.asarray([self.obj_fn(individual) for individual in population])
         best_indiv = np.argmin(fitness)
         best = population[best_indiv]
         return population, fitness, best_indiv, best
         
-    def Crossover(self, mutant, individual):
+    def crossover(self, mutant: float, individual: float):
         if self.crossover_type == 'bin':
             crossover_vector = np.random.rand(self.dim_num) < self.crossover_prob
         if self.crossover_type == 'exp':
@@ -138,78 +233,22 @@ class DE(object):
         offspring = np.where(crossover_vector, mutant, individual)
         return offspring
     
-    def check_search_space(self, mutant):
+    def check_search_space(self, mutant: float):
         mutant = np.clip(mutant, a_min=self.min_bound, a_max=self.max_bound)
         return mutant
     
-    # def variant_func(self):
-
-    #     def rand_1(self, random_individuals):
-    #         return random_individuals[0] + self.mutation_factor * (random_individuals[1] - random_individuals[2])
-    #     def rand_2(self, random_individuals):
-    #         return random_individuals[0] + self.mutation_factor * (random_individuals[1] - random_individuals[2]) + self.mutation_factor * (random_individuals[3] - random_individuals[4])   
-    #     def best_1(self, random_individuals, best):
-    #         return best + self.mutation_factor * (random_individuals[0] - random_individuals[1])
-    #     def best_2(self, random_individuals, best):
-    #         return best + self.mutation_factor * (random_individuals[0] - random_individuals[1]) + self.mutation_factor * (random_individuals[2] - random_individuals[3])
-    #     def current_to_best_1(self, random_individuals, best, current):
-    #         return current + self.mutation_factor * (best - random_individuals[0])
-    #     def current_to_best_2(self, random_individuals, best, current):
-    #         return current + self.mutation_factor * (best - random_individuals[0]) + self.mutation_factor * (random_individuals[1] - random_individuals[2])
-    
-    #     if self.individual_selection_type == 'rand':
-    #         if self.n_difference_vectors == 1:
-    #             return rand_1
-    #         if self.n_difference_vectors == 2:
-    #             return rand_2
-    #     if self.individual_selection_type == 'best':
-    #         if self.n_difference_vectors == 1:
-    #             return best_1
-    #         if self.n_difference_vectors == 2:
-    #             return best_2        
-    #     if self.individual_selection_type == 'current-to-best':
-    #         if self.n_difference_vectors == 1:
-    #             return current_to_best_1
-    #         if self.n_difference_vectors == 2:
-    #             return current_to_best_2
         
-    # def input_func(self, population, indiv, best_indiv):
-    #     idxs = [i for i in range(len(population)) if i != indiv]
-    #     if self.individual_selection_type == 'rand':
-    #         n_rand = 2 * self.n_difference_vectors + 1
-    #         random_individuals = population[np.random.choice(idxs, n_rand, replace = False)]
-    #         return random_individuals
-    #     if self.individual_selection_type == 'best':
-    #         n_rand = 2 * self.n_difference_vectors
-    #         random_individuals = population[np.random.choice(idxs, n_rand, replace = False)]
-    #         return random_individuals, population[best_indiv]
-    #     if self.individual_selection_type == 'current-to-best':
-    #         n_rand = 2 * self.n_difference_vectors - 1
-    #         random_individuals = population[np.random.choice(idxs, n_rand, replace = False)]
-    #         return random_individuals, population[best_indiv], population[indiv]
-    
-    
-    # @check_search_space
-    def mutation(self, population, indiv, best):
-        idxs = [i for i in range(len(population)) if i != indiv]
-        random_individuals = population[np.random.choice(idxs, 2, replace = False)]
-        mutant = best + self.mutation_factor * (random_individuals[0] - random_individuals[1])
-        return mutant
-    
-        
-    def Run(self):
-        population, fitness, best_idx, best = self.InitializePopulation()
-        # Mutation =  self.variant_func()
+    def run(self):
+        population, fitness, best_idx, best = self.initialize_population()
         self.best_par = np.empty(shape=(0, self.dim_num))
         self.best_fitness = np.empty(shape=(0, 1))
         
         for nth_gen in range(self.generation_num):
             for indiv_idx in range(self.population_size): 
-                # mutant = Mutation(*self.input_func(population, indiv, best_indiv))
-                mutant = self.mutation(population, indiv_idx, best)
+                mutant = self.mutation(*self.M.subvariant_fn_args(population, indiv_idx, best_idx))
                 mutant = self.check_search_space(mutant)
-                offspring = self.Crossover(mutant, population[indiv_idx])
-                offspring_fitness = self.obj_func(offspring)
+                offspring = self.crossover(mutant, population[indiv_idx])
+                offspring_fitness = self.obj_fn(offspring)
                 if offspring_fitness < fitness[indiv_idx]:
                     fitness[indiv_idx] = offspring_fitness
                     population[indiv_idx] = offspring
@@ -222,160 +261,148 @@ class DE(object):
                 if self.termination.meet_criterion(population, fitness, best_idx, nth_gen):
                     break
 
-            
 
-
-# def ob_sampling(population_normalized, population_denormalized, objective_func, min_bound, dimension_range, population_size, dimensions):
-#     opposition_normalized = np.zeros_like(population_normalized)
-#     for i in range(population_size):
-#         for j in range(dimensions):
-#             opposition_normalized[i,j] = 1 - population_normalized[i,j]
-#     opposition_denormalized = min_bound + opposition_normalized * dimension_range
-#     population_and_opposition_denormalized = np.concatenate((population_denormalized, opposition_denormalized), axis=0)
-#     fitness_all = np.asarray([objective_func(individual) for individual in population_and_opposition_denormalized])
-#     n_best_idx = fitness_all.argsort()[:population_size]
-#     new_population_normalized = np.concatenate((population_normalized, opposition_normalized), axis=0)[n_best_idx]
-#     new_population_denormalized = population_and_opposition_denormalized[n_best_idx]
-#     new_fitness = np.asarray([objective_func(individual) for individual in new_population_denormalized])
-#     best_idx = np.argmin(new_fitness)
-#     return new_population_normalized, new_population_denormalized, new_fitness, best_idx, new_population_denormalized[best_idx]
-
-
-# def ob_de(objective_func, 
-#             func_bounds, 
-#             de_type='DE/rand/1/bin', 
-#             mutation_factor=0.8, 
-#             crossover_probability=0.7, 
-#             jumping_rate=0.3,
-#             population_size=30, 
-#             generations=1000, 
-#             runs=1, 
-#             patience=20,
-#             epsilon=1E-10,
-#             verbose=0):
-#     """
-#     We expect it is a minimization problem.
-
-#     Parameters
-#     ----------
-#     objection_func : TYPE
-#         DESCRIPTION.
-#     func_bounds : TYPE
-#         DESCRIPTION.
-#     de_type : TYPE, optional
-#         DESCRIPTION. The default is 'DE/rand/1/exp'.
-#     mutation_factor : TYPE, optional
-#         DESCRIPTION. The default is 0.8.
-#     crossover_probability : TYPE, optional
-#         DESCRIPTION. The default is 0.7.
-#     jumping_rate : TYPE, optional
-#         DESCRIPTION. The default is 0.3.
-#     population_size : TYPE, optional
-#         DESCRIPTION. The default is 30.
-#     generations : TYPE, optional
-#         DESCRIPTION. The default is 1000.
-#     runs : TYPE, optional
-#         DESCRIPTION. The default is 1.
-#     patience : TYPE, optional
-#         DESCRIPTION. The default is 20.
-#     epsilon : TYPE, optional
-#         DESCRIPTION. The default is 1E-10.
-#     verbose : TYPE, optional
-#         DESCRIPTION. The default is 0.
-
-#     Yields
-#     ------
-#     run_num : TYPE
-#         DESCRIPTION.
-#     gen_num : TYPE
-#         DESCRIPTION.
-#     best : TYPE
-#         DESCRIPTION.
-#     TYPE
-#         DESCRIPTION.
-
-#     """
-#     _, individual_selection_type, n_difference_vectors, crossover_type, = de_type.split("/")
-#     n_difference_vectors = int(n_difference_vectors)
+class OBDE(object):
+    def __init__(self, 
+                 objective, 
+                 stopping_criterion=None,
+                 de_type='DE/best/1/bin', 
+                 mutation_factor=0.8, 
+                 crossover_prob=0.7,
+                 jumping_rate=0.3,
+                 population_size=30, 
+                 generation_num=300):
+        
+                
+        if stopping_criterion is not None:
+            self.termination = StoppingCriterion.criteria_fn_map(stopping_criterion)()
+        else:
+            self.termination = None
+        
+        self.objective = objective
+        self.obj_fn = objective.evaluate
+        self.search_space = self.objective.search_space
+        
+        self.min_bound = np.asarray([min(dim) for dim in self.search_space])
+        self.max_bound = np.asarray([max(dim) for dim in self.search_space])
+        self.dim_range = np.fabs(self.min_bound - self.max_bound)
+        self.dim_num = objective.dim_num
+        
+        self.mutation_factor = mutation_factor
+        self.crossover_prob = crossover_prob
+        self.jumping_rate = jumping_rate
+        self.population_size = population_size
+        self.generation_num = generation_num
+        
+        _, self.individual_selection_type, n_difference_vectors, self.crossover_type, = de_type.split("/")
+        self.n_difference_vectors = int(n_difference_vectors)
+        
+        self.M = select_mutation_variant(self.individual_selection_type,
+                                    self.n_difference_vectors,
+                                    self.mutation_factor)
+        
+        self.mutation = self.M.subvariant_fn()
+               
+        
+    def initialize_population(self):
+        population = self.min_bound + np.random.rand(self.population_size, self.dim_num) * self.dim_range
+        fitness = np.asarray([self.obj_fn(individual) for individual in population])
+        best_indiv = np.argmin(fitness)
+        best = population[best_indiv]
+        return population, fitness, best_indiv, best
+        
+    def crossover(self, mutant: float, individual: float):
+        if self.crossover_type == 'bin':
+            crossover_vector = np.random.rand(self.dim_num) < self.crossover_prob
+        if self.crossover_type == 'exp':
+            L = 0
+            j = np.random.randint(low=0, high=self.dim_num)
+            random_number = np.random.rand()
+            crossover_vector = np.asarray([False] * self.dim_num)
+            while random_number < self.crossover_prob and L < self.dim_num:
+                L += 1
+                j = (j+1) % self.dim_num
+                random_number = np.random.rand()
+                crossover_vector[j] = True
+        offspring = np.where(crossover_vector, mutant, individual)
+        return offspring
     
-#     dimensions = len(func_bounds)
-#     min_bound = np.asarray([min(dim) for dim in func_bounds])
-#     max_bound = np.asarray([max(dim) for dim in func_bounds])
-#     dimension_range = np.fabs(min_bound - max_bound)
-#     mutation = variant_func(individual_selection_type, n_difference_vectors)
-#     for run_num in range(runs):
-#         population_normalized = np.random.rand(population_size, dimensions)
-#         population_denormalized = min_bound + population_normalized * dimension_range
-#         population_normalized, population_denormalized, fitness, best_idx, best = ob_sampling(population_normalized, population_denormalized, obj_func, min_bound, dimension_range, population_size, dimensions)
-#         best_list = [best]
-#         for gen_num in range(generations):
-#             for idx in range(population_size):
-#                 # Mutation
-#                 mutant = mutation(*input_func(individual_selection_type, n_difference_vectors, mutation_factor, population_normalized, idx, best_idx))
-#                 # Crossover
-#                 crossover_vector = crossover(crossover_type, dimensions, crossover_probability)
-#                 offspring_normalized = np.where(crossover_vector, mutant, population_normalized[idx])                
-#                 offspring_denormalized = min_bound + offspring_normalized * dimension_range
-#                 offspring_fitness = obj_func(offspring_denormalized)
-#                 if offspring_fitness < fitness[idx]:
-#                     fitness[idx] = offspring_fitness
-#                     population_normalized[idx] = offspring_normalized
-#                     if offspring_fitness < fitness[best_idx]:
-#                         best_idx = idx
-#                         best = offspring_denormalized
-            
-#             if np.random.rand() < jumping_rate:
-#                 population_normalized, population_denormalized, fitness, best_idx, best = ob_sampling(population_normalized, population_denormalized, obj_func, min_bound, dimension_range, population_size, dimensions)
-            
-#             if patience != None and gen_num >= patience:
-#                 if (np.asarray([element-best for element in best_list[-patience:]]) < [epsilon]*dimensions).all():
-#                     break
-#             best_list.append(best)
-#             yield run_num, gen_num, best, fitness[best_idx]
+    def check_search_space(self, mutant: float):
+        mutant = np.clip(mutant, a_min=self.min_bound, a_max=self.max_bound)
+        return mutant
+    
+    def ob_sampling(self, population):
+        """
+        Opposition-Based (OB) sampling
+    
+        """
+        opposition = np.zeros_like(population)
+        for idx in range(self.population_size):
+            for dim in range(self.dim_num):
+                opposition[idx,dim] = self.max_bound[dim] - np.abs(self.min_bound[dim] - population[idx,dim])
+        population_and_opposition = np.concatenate((population, opposition), axis=0)
+        fitness_all = np.asarray([self.obj_fn(individual) for individual in population_and_opposition])
+        n_best_idx = fitness_all.argsort()[:self.population_size]
+        new_population = population_and_opposition[n_best_idx]
+        new_fitness = np.asarray([self.obj_fn(individual) for individual in new_population])
+        best_idx = np.argmin(new_fitness)
+        return new_population, new_fitness, best_idx, new_population[best_idx]
+        
+    def run(self):
+        population, fitness, best_idx, best = self.initialize_population()
+        self.best_par = np.empty(shape=(0, self.dim_num))
+        self.best_fitness = np.empty(shape=(0, 1))
+        
+        for nth_gen in range(self.generation_num):
+            for indiv_idx in range(self.population_size): 
+                mutant = self.mutation(*self.M.subvariant_fn_args(population, indiv_idx, best_idx))
+                mutant = self.check_search_space(mutant)
+                offspring = self.crossover(mutant, population[indiv_idx])
+                offspring_fitness = self.obj_fn(offspring)
+                if offspring_fitness < fitness[indiv_idx]:
+                    fitness[indiv_idx] = offspring_fitness
+                    population[indiv_idx] = offspring
+                    if offspring_fitness < fitness[best_idx]:
+                        best_idx = indiv_idx
+                        best = offspring
+            if np.random.rand() < self.jumping_rate:
+                population, fitness, best_idx, best = self.ob_sampling(population)
+            self.best_par = np.append(self.best_par, best)
+            self.best_fitness = np.append(self.best_fitness, fitness[best_idx])
+            if self.termination is not None:
+                if self.termination.meet_criterion(population, fitness, best_idx, nth_gen):
+                    break
             
 
 
 if __name__ == "__main__":
     
-    # import matplotlib.pyplot as plt
-        
-    # obj_func = lambda x: sum(x**2)/len(x)
-    # func_bounds = [(-50,50)]*2
-    # runs = 5
-    # result = list(differential_evolution(objective_func=obj_func, func_bounds=func_bounds, de_type='DE/rand/1/bin', runs=runs, generations=300, patience=20))
-    # result = list(ob_de(objective_func=obj_func, func_bounds=func_bounds, runs=runs, generations=300))
-    # result = list(sa_de(objective_func=obj_func, func_bounds=func_bounds, runs=runs, generations=300,
-    #                     de_strategy_1='DE/rand/1/bin',
-    #                     de_strategy_2='DE/best/1/bin',
-    #                     learning_period = 50,
-    #                     patience=20)
-    #               )    
+    # M = select_mutation_variant(individual_selection_type = 'rand', 
+    #                                     n_difference_vectors = 1, 
+    #                                     mutation_factor = 0.8)
     
-    # for run_num in range(runs):
-    #     run, gen, x, f = zip(*[element for element in result if element[0]==run_num])
-    #     plt.yscale('log', base=2) 
-    #     plt.plot(f, label='run_num={}'.format(run_num))
-    # plt.legend()
+    # mutation = M.subvariant_fn()
+    # mutation(*M.subvariant_fn_args(population, indiv_idx, best_idx))
     
     import matplotlib.pyplot as plt
     from ObjectiveFunctions import Beale, Rastrigin
     from StoppingCriterion import ImpBestObj
     fn = Rastrigin(2)  
-    optimiser = DE(objective=fn, stopping_criterion='imp_best_obj')
+    optimiser = OBDE(objective=fn, stopping_criterion='imp_best_obj', de_type='DE/best/2/bin')
     optimiser.termination.from_nth_gen = 50
     optimiser.termination.patience = 20
-    optimiser.Run()
+    optimiser.run()
     
     plt.yscale('log', base=2) 
     plt.plot(optimiser.best_fitness)
     plt.legend()    
     
-    optimiser.dim_num
-    optimiser.best_fitness
-    optimiser.termination.metric_list
-    optimiser.termination.check_list
-    fn.minima_loc
-    fn.minima
+    # optimiser.dim_num
+    # optimiser.best_fitness
+    # optimiser.termination.metric_list
+    # optimiser.termination.check_list
+    # fn.minima_loc
+    # fn.minima
     
     
 
