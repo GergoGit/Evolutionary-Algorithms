@@ -51,6 +51,10 @@ class ABC(object):
         best = population[best_idx]
         return population, fitness, best_idx, best
     
+    def search_rand_place(self):
+        new_place = self.min_bound + np.random.rand(self.dim_num) * self.dim_range
+        return new_place
+    
     
     def check_search_space(self, mutant: float):
         mutant = np.clip(mutant, a_min=self.min_bound, a_max=self.max_bound)
@@ -106,7 +110,7 @@ class ABC(object):
             # Scout bees
             for indiv_idx in range(self.n_bees):
                 if bad_trials[indiv_idx] > self.limit:
-                    new_place = self.min_bound + np.random.rand(self.dim_num) * self.dim_range
+                    new_place = self.search_rand_place()
                     new_place_fitness = self.obj_fn(new_place)
                     if new_place_fitness < fitness[indiv_idx]:
                         population[indiv_idx] = new_place
