@@ -15,6 +15,9 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="D:/Thesis/Python codes/Clustering" />
+  </component>
   <component name="RunManager" selected="Python tests.Unittests in unit_test_MaxDistObj.py">
     <configuration name="Unittests for unit_test_MaxDistQuickObj.TestMaxDistQuickObj" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <module name="Evolutionary-Algorithms" />
@@ -118,6 +121,10 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="137" y="19" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1366.728@0.0.1366.728" timestamp="1642942170602" />
+    <state x="463" y="119" key="FileChooserDialogImpl" timestamp="1643674595890">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state x="463" y="119" key="FileChooserDialogImpl/0.0.1366.728@0.0.1366.728" timestamp="1643674595890" />
     <state width="1345" height="170" key="GridCell.Tab.0.bottom" timestamp="1643073791930">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
