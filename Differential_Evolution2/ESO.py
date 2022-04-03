@@ -28,8 +28,8 @@ class ESO(object):
                  objective, 
                  stopping_criterion=None,
                  population_size=30, 
-                 generation_num=300):
-        
+                 generation_num=300,
+                 energy_level=3):        
                 
         if stopping_criterion is not None:
             self.termination = StoppingCriterion.criteria_fn_map(stopping_criterion)()
@@ -47,6 +47,7 @@ class ESO(object):
         
         self.population_size = population_size
         self.generation_num = generation_num
+        self.energy_level = energy_level
 
         
     def initialize_nucleus_population(self):
@@ -69,12 +70,12 @@ class ESO(object):
         return mutant
             
     def run(self):
-        nucleus, nucleus_fitness, best_nucleus_idx, best_nucleus = self.initialize_population()
-
-        Ac
-        Re
-        orbital_radius
-
+        nucleus, nucleus_fitness, best_nucleus_idx, best_nucleus = self.initialize_nucleus_population()
+        electron, electron_fitness, best_electron_idx, best_electron = self.initialize_electrons(nucleus)
+        Ac = np.random.rand(self.population_size)
+        Re = np.random.rand(self.population_size)
+        D = np.empty(shape=(self.population_size, self.dim_num))
+        orbital_radius = np.random.rand(1)
 
         self.best_par = np.empty(shape=(0, self.dim_num))
         self.best_fitness = np.empty(shape=(0, 1))
@@ -82,33 +83,35 @@ class ESO(object):
         for nth_gen in range(self.generation_num):
             
             for indiv_idx in range(self.population_size): 
-                r1 = np.random.rand(1)
                 
-                electron = population[indiv_idx] + (2*r1 - 1)(1 - 1/n**2)*r
-                D = [indiv_idx]
-                velocity_cognitive = self.c1*r1*(particle_indiv_best[indiv_idx] - population[indiv_idx])
-                velocity_social = self.c2*r2*(best - population[indiv_idx])
-                velocity[indiv_idx] = self.alfa*velocity[indiv_idx] + velocity_cognitive + velocity_social
-                population[indiv_idx] = population[indiv_idx] + velocity[indiv_idx]
-                population[indiv_idx] = self.check_search_space(population[indiv_idx])                
-                fitness[indiv_idx] = self.obj_fn(population[indiv_idx])
+                r1 = np.random.rand(1)                
+                electron[indiv_idx] = nucleus[indiv_idx] + (2*r1 - 1)*(1 - 1/self.energy_level**2)*orbital_radius
+                electron[indiv_idx] = self.check_search_space(electron[indiv_idx]) 
+                D[indiv_idx] = (best_electron - best_nucleus) + Re[indiv_idx]*(1/best_nucleus**2 - 1/nucleus[indiv_idx]**2)
+                new_nucleus = nucleus[indiv_idx] + Ac[indiv_idx]*D[indiv_idx]
+                new_nucleus = self.check_search_space(new_nucleus)           
                 
-                if fitness[indiv_idx] < particle_fitness[indiv_idx]:
-                    particle_indiv_best[indiv_idx] = population[indiv_idx]
-                    if fitness[indiv_idx] < fitness[best_idx]:
-                        best = population[indiv_idx]
-                        best_idx = indiv_idx
-                        
-            self.best_par = np.append(self.best_par, best)
-            self.best_fitness = np.append(self.best_fitness, fitness[best_idx])
+                new_nucleus_fitness = self.obj_fn(nucleus[indiv_idx])
+                
+                if new_nucleus_fitness < nucleus_fitness[indiv_idx]:
+                    nucleus_fitness[indiv_idx] = new_nucleus_fitness
+                    nucleus[indiv_idx] = new_nucleus
+                    if new_nucleus_fitness < nucleus_fitness[best_nucleus_idx]:
+                        best_nucleus = nucleus[indiv_idx]
+                        best_nucleus_idx = indiv_idx
+            
+            self.best_par = np.append(self.best_par, best_nucleus)
+            self.best_fitness = np.append(self.best_fitness, nucleus_fitness[best_nucleus_idx])
             if self.termination is not None:
-                if self.termination.meet_criterion(population, fitness, best_idx, nth_gen):
+                if self.termination.meet_criterion(nucleus, nucleus_fitness, best_nucleus_idx, nth_gen):
                     break
+            
+            for indiv_idx in range(self.population_size):
+                Re[indiv_idx] = Re[indiv_idx] + (Re[best_nucleus_idx] + (Re[indiv_idx]/nucleus_fitness[indiv_idx])/(1/nucleus_fitness[indiv_idx]))/2
+                Ac[indiv_idx] = Ac[indiv_idx] + (Ac[best_nucleus_idx] + (Ac[indiv_idx]/nucleus_fitness[indiv_idx])/(1/nucleus_fitness[indiv_idx]))/2
+            
             orbital_radius = np.mean(np.linalg.norm(nucleus - electron))
-            AC
-            Re
-            if self.decay:
-                self.alfa = (self.alfa_max - self.alfa_min) * ((nth_gen + 1) / self.generation_num)
+            
 
 
                 
@@ -118,7 +121,11 @@ if __name__ == "__main__":
     from ObjectiveFunctions import Beale, Rastrigin
     from StoppingCriterion import ImpBestObj
     fn = Rastrigin(2)  
-    optimiser = PSO(objective=fn, stopping_criterion='imp_avg_par')
+    optimiser = ESO(objective=fn, 
+                    stopping_criterion='imp_avg_par',
+                    population_size=30, 
+                    generation_num=300,
+                    energy_level=3)
     optimiser.termination.from_nth_gen = 50
     optimiser.termination.patience = 20
     optimiser.run()
