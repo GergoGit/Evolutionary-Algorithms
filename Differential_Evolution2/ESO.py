@@ -102,7 +102,7 @@ class ESO(object):
                         best_nucleus = nucleus[indiv_idx]
                         best_nucleus_idx = indiv_idx
             
-            self.best_par = np.append(self.best_par, best_nucleus)
+            self.best_par = np.vstack((self.best_par, best_nucleus))
             self.best_fitness = np.append(self.best_fitness, nucleus_fitness[best_nucleus_idx])
             if self.termination is not None:
                 if self.termination.meet_criterion(nucleus, nucleus_fitness, best_nucleus_idx, nth_gen):

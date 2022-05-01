@@ -119,7 +119,7 @@ class CS0(object):
             best_idx = np.argmin(fitness)
             best = population[best_idx]
                                 
-            self.best_par = np.append(self.best_par, best)
+            self.best_par = np.vstack((self.best_par, best))
             self.best_fitness = np.append(self.best_fitness, fitness[best_idx])
             if self.termination is not None:
                 if self.termination.meet_criterion(population, fitness, best_idx, nth_gen):
@@ -221,7 +221,7 @@ class CS1(object):
                         best = population[indiv_idx]
                         best_idx = indiv_idx
                                 
-            self.best_par = np.append(self.best_par, best)
+            self.best_par =np.vstack((self.best_par, best))
             self.best_fitness = np.append(self.best_fitness, fitness[best_idx])
             if self.termination is not None:
                 if self.termination.meet_criterion(population, fitness, best_idx, nth_gen):

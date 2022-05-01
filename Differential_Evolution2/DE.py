@@ -244,7 +244,9 @@ class DE(object):
         self.best_fitness = np.empty(shape=(0, 1))
         
         for nth_gen in range(self.generation_num):
+            
             for indiv_idx in range(self.population_size): 
+                
                 mutant = self.mutation(*self.M.subvariant_fn_args(population, indiv_idx, best_idx))
                 mutant = self.check_search_space(mutant)
                 offspring = self.crossover(mutant, population[indiv_idx])
@@ -255,7 +257,8 @@ class DE(object):
                     if offspring_fitness < fitness[best_idx]:
                         best_idx = indiv_idx
                         best = offspring
-            self.best_par = np.append(self.best_par, best)
+                        
+            self.best_par = np.vstack((self.best_par, best))
             self.best_fitness = np.append(self.best_fitness, fitness[best_idx])
             if self.termination is not None:
                 if self.termination.meet_criterion(population, fitness, best_idx, nth_gen):
@@ -354,7 +357,9 @@ class OBDE(object):
         self.best_fitness = np.empty(shape=(0, 1))
         
         for nth_gen in range(self.generation_num):
+            
             for indiv_idx in range(self.population_size): 
+                
                 mutant = self.mutation(*self.M.subvariant_fn_args(population, indiv_idx, best_idx))
                 mutant = self.check_search_space(mutant)
                 offspring = self.crossover(mutant, population[indiv_idx])
@@ -365,9 +370,11 @@ class OBDE(object):
                     if offspring_fitness < fitness[best_idx]:
                         best_idx = indiv_idx
                         best = offspring
+                        
             if np.random.rand() < self.jumping_rate:
                 population, fitness, best_idx, best = self.ob_sampling(population)
-            self.best_par = np.append(self.best_par, best)
+                
+            self.best_par = np.vstack((self.best_par, best))
             self.best_fitness = np.append(self.best_fitness, fitness[best_idx])
             if self.termination is not None:
                 if self.termination.meet_criterion(population, fitness, best_idx, nth_gen):
