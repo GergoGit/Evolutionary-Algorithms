@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Apr 30 23:10:07 2022
+Created on Sun May  1 22:54:28 2022
 
-Flower Pollination Algorithm
+Grey Wolf Optimization (GWO)
 
-https://sci-hub.se/10.1007/978-3-319-67669-2_5
-
-search type is chosen randomly by swotch probability:
-1, Global pollination or global (biotic) search
-2, Local pollination or local (abiotic) search 
+https://sci-hub.se/10.1016/j.advengsoft.2013.12.007
+https://www.youtube.com/watch?v=CQquzq24BPc&t=1s
 
 """
 
@@ -18,15 +15,13 @@ search type is chosen randomly by swotch probability:
 import numpy as np
 import StoppingCriterion
 
-class FPA(object):
+class GWO(object):
     def __init__(self, 
                  objective, 
                  stopping_criterion=None,
                  population_size=30,
-                 switch_probability = 0.8,
                  n_generation=300):
-        
-                
+                        
         if stopping_criterion is not None:
             self.termination = StoppingCriterion.criteria_fn_map(stopping_criterion)()
         else:
@@ -43,7 +38,6 @@ class FPA(object):
         
         self.population_size = population_size
         self.n_generation = n_generation
-        self.switch_probability = switch_probability
 
         
     def initialize_population(self):
@@ -53,22 +47,12 @@ class FPA(object):
         best = population[best_idx]
         return population, fitness, best_idx, best
     
-    def LevyFlight(self, n_dim):
-        beta = 1.5
-        u = np.random.normal(loc=0, scale=0.6966, size=n_dim)
-        v = np.random.normal(loc=0, scale=1, size=n_dim)
-        s = u/(abs(v)**(1/beta))
-        return s
-    
-    def global_search(self, population, indiv_idx, best):
-        offspring = population[indiv_idx] + self.LevyFlight(self.n_dim)*(best - population[indiv_idx])
-        return offspring
-    
-    def local_search(self, population, indiv_idx):
-        idxs = [i for i in range(self.population_size) if i != indiv_idx]
-        random_partners = population[np.random.choice(idxs, 2, replace=False)].ravel()
-        offspring = population[indiv_idx] + np.random.rand()*(random_partners[0] - random_partners[1])
-        return offspring
+    def mutation(self, a, abc_wolf, other_wolf):
+        A = 2 * a * np.random.rand() - a
+        C = 2 * np.random.rand()    
+        D = np.abs(C * abc_wolf - other_wolf)
+        X = abc_wolf - A * D
+        return X
             
     def check_search_space(self, mutant: float):
         mutant = np.clip(mutant, a_min=self.min_bound, a_max=self.max_bound)
@@ -82,13 +66,22 @@ class FPA(object):
         
         for nth_gen in range(self.n_generation):
             
-            for indiv_idx in range(self.population_size):    
-                if np.random.rand() < self.switch_probability:
-                    offspring = self.global_search(population, indiv_idx, best)
-                else:
-                    offspring = self.local_search(population, indiv_idx)
+            # linearly decreased from 2 to 0
+            a = 2 * (1 - nth_gen / self.n_generation)
+            
+            top3_idx = fitness.argsort()[:3]            
+            second_best = population[top3_idx[1]]
+            third_best = population[top3_idx[2]]
+            
+            for indiv_idx in range(self.population_size):
+                
+                X1 = self.mutation(a, abc_wolf=best,         other_wolf=population[indiv_idx])
+                X2 = self.mutation(a, abc_wolf=second_best,  other_wolf=population[indiv_idx])
+                X3 = self.mutation(a, abc_wolf=third_best,   other_wolf=population[indiv_idx])
+                offspring = (X1 + X2 + X3) / 3
                 offspring = self.check_search_space(offspring)
                 offspring_fitness = self.obj_fn(offspring)
+                
                 if offspring_fitness < fitness[indiv_idx]:
                     population[indiv_idx] = offspring
                     fitness[indiv_idx] = offspring_fitness
@@ -109,10 +102,9 @@ if __name__ == "__main__":
     from ObjectiveFunctions import Beale, Rastrigin
     from StoppingCriterion import ImpBestObj
     fn = Rastrigin(2)  
-    optimiser = FPA(objective=fn, 
+    optimiser = GWO(objective=fn, 
                     stopping_criterion='imp_avg_obj',
                     population_size=30,
-                    switch_probability=0.8,
                     n_generation=300)
     optimiser.termination.from_nth_gen = 50
     optimiser.termination.patience = 20
@@ -128,4 +120,3 @@ if __name__ == "__main__":
     # optimiser.termination.check_list
     # fn.minima_loc
     # fn.minima
-        

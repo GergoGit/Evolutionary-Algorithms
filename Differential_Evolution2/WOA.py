@@ -27,7 +27,6 @@ p = switch between phases
 # os.chdir(r'C:\Users\bonnyaigergo\Documents\GitHub\Evolutionary-Algorithms\Differential_Evolution2')
 
 import numpy as np
-import math
 import StoppingCriterion
 
 class WOA(object):
@@ -36,7 +35,7 @@ class WOA(object):
                  stopping_criterion=None,
                  population_size=30,
                  b=1,
-                 p=0.5,
+                 strategy_switch_probability=0.5,
                  n_generation=300):
         
                 
@@ -57,7 +56,7 @@ class WOA(object):
         self.population_size = population_size
         self.n_generation = n_generation
         self.b = b
-        self.p = p
+        self.strategy_switch_probability = strategy_switch_probability
 
         
     def initialize_population(self):
@@ -73,31 +72,6 @@ class WOA(object):
         l = np.random.uniform(-1, 1)
         D = np.zeros(shape=self.n_dim)
         return A, C, l, D
-    
-    def LevyFlight(self, n_dim):
-        beta = 1.5
-        u = np.random.normal(loc=0, scale=0.6966, size=n_dim)
-        v = np.random.normal(loc=0, scale=1, size=n_dim)
-        s = u/(abs(v)**(1/beta))
-        return s
-    
-    def new_cuckoo_via_levyflight(self, population):
-        idxs = [i for i in range(self.population_size)]
-        random_nests = population[np.random.choice(idxs, 3, replace=False)].ravel()
-        offspring = random_nests[0] + self.LevyFlight(self.n_dim)*(random_nests[1] - random_nests[2])
-        return offspring
-    
-    def leave_worst_nests_and_create_new_ones(self, population, fitness):
-        idxs_leave = fitness.argsort()[-self.n_worst:]  
-        idxs_keep = [i for i in range(self.population_size) if i not in idxs_leave]  
-        
-        for indiv_idx in idxs_leave:
-            random_nests = np.random.choice(idxs_keep, 2, replace=False)
-            population[indiv_idx] = population[indiv_idx] + \
-                self.LevyFlight(self.n_dim)*(population[random_nests[0]] - population[random_nests[1]])
-            population[indiv_idx] = self.check_search_space(population[indiv_idx])
-            fitness[indiv_idx] = self.obj_fn(population[indiv_idx])
-        return population, fitness
             
     def check_search_space(self, mutant: float):
         mutant = np.clip(mutant, a_min=self.min_bound, a_max=self.max_bound)
@@ -117,7 +91,7 @@ class WOA(object):
             for indiv_idx in range(self.population_size):
                 A, C, l, D = self.initialize_parameters(a)
                 
-                if np.random.rand() < self.p:
+                if np.random.rand() < self.strategy_switch_probability:
                     # Encircling prey
                     if abs(A) < 1:
                         # Moving towards prey (exploitation)
@@ -159,7 +133,7 @@ if __name__ == "__main__":
                     stopping_criterion='imp_avg_obj',
                     population_size=30,
                     b=1,
-                    p=0.5,
+                    strategy_switch_probability=0.5,
                     n_generation=300)
     optimiser.termination.from_nth_gen = 50
     optimiser.termination.patience = 20
