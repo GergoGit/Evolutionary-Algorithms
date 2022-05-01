@@ -4,12 +4,16 @@ Created on Wed Dec  1 00:42:13 2021
 
 @author: bonnyaigergo
 
+Particle Swarm Optimization
+
 https://nathanrooy.github.io/posts/2016-08-17/simple-particle-swarm-optimization-with-python/
 https://machinelearningmastery.com/a-gentle-introduction-to-particle-swarm-optimization/
 https://github.com/anyoptimization/pymoo/blob/master/pymoo/algorithms/soo/nonconvex/pso.py
 
 alfa = inertia
 c1 and c2: cognitive and social parameters
+
+NOTE: works, but with not continous improvement
 """
 
 import numpy as np

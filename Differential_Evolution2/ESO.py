@@ -16,6 +16,8 @@ Re is Rydberg’s energy constant-coefficient
 Ac is the accelerator coefficient
 n is the energy level (vicinity in which electrons can be positioned) n ∈ {2, 3, 4, 5}
 r is the orbital radius (average distance)
+
+TODO: make it work by tuning parameters
 """
 # import os
 # os.chdir(r'C:\Users\bonnyaigergo\Documents\GitHub\Evolutionary-Algorithms\Differential_Evolution2')
