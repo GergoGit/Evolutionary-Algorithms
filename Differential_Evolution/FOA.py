@@ -53,6 +53,7 @@ def FOA(objective_func,
             S = [1/dist for dist in D]
             fitness = np.asarray([objective_func(smell) for smell in S])
             best_idx = np.argmin(fitness)
+            best = S[best_idx]
             X_axis = np.tile(A=X[best_idx], reps=(population_size, 1))
             Y_axis = np.tile(A=Y[best_idx], reps=(population_size, 1))
             if patience != None and ite_num >= patience:
