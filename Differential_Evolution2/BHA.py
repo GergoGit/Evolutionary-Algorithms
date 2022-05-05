@@ -24,8 +24,7 @@ class BHA(object):
                  stopping_criterion=None,
                  population_size=30,
                  n_generation=300):
-        
-                
+                       
         if stopping_criterion is not None:
             self.termination = StoppingCriterion.criteria_fn_map(stopping_criterion)()
         else:
@@ -69,7 +68,7 @@ class BHA(object):
             for indiv_idx in range(self.population_size):                    
                 population[indiv_idx] += np.random.rand() * (best - population[indiv_idx])
                 population[indiv_idx] = self.check_search_space(population[indiv_idx])
-            event_horizon = fitness[best_idx] / sum(fitness)
+            event_horizon = fitness[best_idx] / np.sum(fitness)
             
             for indiv_idx in range(self.population_size):
                 if np.linalg.norm(best - population[indiv_idx]) < event_horizon and indiv_idx != best_idx:
