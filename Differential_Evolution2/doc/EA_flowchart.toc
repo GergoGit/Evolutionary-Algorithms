@@ -37,4 +37,3 @@
 \contentsline {chapter}{\numberline {10}Black Hole Algorithm (BHA)}{13}{chapter.10}%
 \contentsline {section}{\numberline {10.1}Story}{13}{section.10.1}%
 \contentsline {section}{\numberline {10.2}Pseudo code}{14}{section.10.2}%
-\contentsline {section}{\numberline {10.3}Flowchart}{14}{section.10.3}%

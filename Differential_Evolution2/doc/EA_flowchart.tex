@@ -78,7 +78,7 @@
 \chapter{Black Hole Algorithm (BHA)}
 \section{Story}
 
-BHA \cite{bha1, bha2} heuristic approach was introduced in 2012. The analogy is to create a random population of stars in the search space, the one with the best fitness value is considered as the black hole. The black hole gives a direction for every star's movement in all iterations. The stars are moving towards the black hole in a random way. After movement if the fitness value of a star is better than the fitness value of the black hole, then this star becomes the black hole. Furthermore another mechanism is involved to make a balance between exploration and exploitation, according to that if a star cross the event horizon (defined distance from the black hole) then the black hole swallows it. Technically the star loose it's actual position and being redistributed randomly in the search space. Hence a new star is born to keep the population constant. \\
+BHA \cite{bha1, bha2} heuristic approach was introduced in 2012. The analogy is to create a random population of stars in the search space, the one with the best fitness value is considered as the black hole. The black hole gives a direction for every star's movement in all iterations. The stars are moving towards the black hole in a random way. After movement if the fitness value of a star is better than the fitness value of the black hole, then this star becomes the black hole. Furthermore another mechanism is involved to make a balance between exploration and exploitation, according to that if a star crosses the event horizon (defined distance from the black hole) then the black hole swallows it. Technically the star loose it's actual position and being redistributed randomly in the search space. Hence a new star is born to keep the population constant. \\
 
 \noindent
 Let $X=\{x_1,x_2,\ldots,x_N\}$ population of stars, where $N$ is the population size and $x_i \in \R^D$.
@@ -129,128 +129,137 @@ Event Horizon=\frac{fitness_{BH}}{\sum\limits_{i=1}^N fitness_i}
  }
 \end{algorithm}
 
-\section{Flowchart}
-
-\begin{figure}[ht]
-\begin{tikzpicture}[font=\small,thick]
+%\section{Flowchart}
+%
+%\begin{figure}[ht]
+%\begin{tikzpicture}[font=\small,thick]
 
 %%%%%% TUTORIAL %%%%%%%
 % https://latexdraw.com/draw-flowcharts-latex-tutorial/
- 
+% https://www.overleaf.com/learn/latex/LaTeX_Graphics_using_TikZ%3A_A_Tutorial_for_Beginners_(Part_3)%E2%80%94Creating_Flowcharts
+%https://texample.net/tikz/examples/flexible-flow-chart/
+%https://texample.net/tikz/examples/tag/flowcharts/
+%https://latexdraw.com/draw-flowcharts-latex-tutorial/
+% https://www.google.com/search?q=metaheuristic+flow+chart&client=firefox-b-d&sxsrf=ALiCzsZvikf8bbFYQmi9ojJqxeTfVrzQmg:1652216663946&source=lnms&tbm=isch&sa=X&ved=2ahUKEwi7tOLa6tX3AhVnmIsKHc0vDCsQ_AUoAXoECAEQAw&biw=1704&bih=927&dpr=1#imgrc=iGtRMNvvKZcqIM
+
+
 % Start block
-\node[draw,
-    rounded rectangle,
-    minimum width=2.5cm,
-    minimum height=1cm] (bha_start) {START};
-    
-% set population size and iteration number
-\node[rectangle, draw,
-    below=of bha_start,
-    minimum width=3.5cm,
-    minimum height=1cm
-] (bha_init1) {Set $N$: population size, $T$: number of iterations};
- 
-% Initialize population
-\node[rectangle, draw,
-    below=of bha_init1,
-    minimum width=3.5cm,
-    minimum height=1cm
-] (bha_init2) {Initialize population $X$};
-
-% calculate fitness
-\node[rectangle, draw,
-    below=of bha_init2,
-    minimum width=3.5cm,
-    minimum height=1cm
-] (bha_init3) {Calculate fitness values $fitness_i$, determine the black hole $x_{BH}$ and calculate $Event Horizon$};
-
-% iteration
-\node[rectangle, draw,
-    below=of bha_init3,
-    minimum width=3.5cm,
-    minimum height=1cm
-] (bha_iter) {For iter = 1 to $T$};
-
-% loop through population
-\node[rectangle, draw,
-    below=of bha_iter,
-    minimum width=3.5cm,
-    minimum height=1cm
-] (bha_pop) {For population member i = 1 to $N$};
-
-% random step
-\node[rectangle, draw,
-    below=of bha_pop,
-    minimum width=3.5cm,
-    minimum height=1cm
-] (bha_randstep) {Random step towards black hole $x_{BH}$};
-
-% loop through population
-\node[rectangle, draw,
-    below=of bha_iter,
-    minimum width=3.5cm,
-    minimum height=1cm
-] (bha_pop) {For population member i = 1 to $N$};
- 
-% fitness condition
-\node[draw,
-    diamond,
-    below=of bha_randstep,
-    minimum width=2.5cm,
-    inner sep=0] (bha_fitness_cond) {$fitness_i<fitness_{BH}$};
-    
-% new black hole
-\node[rectangle, draw,
-    below=of bha_fitness_cond,
-    minimum width=3.5cm,
-    minimum height=1cm
-] (bha_new_bh) {Set new black hole $x_{BH}=x_i$};
- 
-\node[draw,
-    diamond,
-    right=of bha_fitness_cond,
-    minimum width=2.5cm,
-    inner sep=0] (bha_dist_eh) { $\|x_{BH}-x_i\|<EventHorizon$};
-    
-% Start block
-\node[draw,
-    rounded rectangle,
-    minimum width=2.5cm,
-    minimum height=1cm] (bha_end) {END};
- 
- 
-% Arrows
-\draw[-latex,shorten >=0.2pt] (bha_start) edge (bha_init1)
-    (bha_init1) edge (bha_init2)
-    (bha_init2) edge (bha_init3)
-    (bha_init3) edge (bha_iter)
-    (bha_iter) edge (bha_pop)
-    (bha_pop) edge (bha_randstep)
-    (bha_randstep) edge (block3)
-    (block3) edge (block4);
- 
-\draw[-latex] (block4) -| (block5)
-    node[pos=0.25,fill=white,inner sep=0]{Yes};
- 
-\draw[-latex] (block4) -| (block6)
-    node[pos=0.25,fill=white,inner sep=0]{No};
- 
-\draw[-latex] (block5) edge node[pos=0.4,fill=white,inner sep=2pt]{No}(block7)
-    (block5) -| (block8)
-        node[pos=0.25,fill=white,inner sep=0]{Yes};
- 
-\draw[-latex] (block6) edge node[pos=0.4,fill=white,inner sep=2pt]{No}(block9)
-    (block6) -| (block10)
-        node[pos=0.25,fill=white,inner sep=0]{Yes};
- 
-\end{tikzpicture}
-
-\caption{Flowchart of Black Hole Algorithm (BHA)}
-\end{figure}
+%\node[draw,
+%    rounded rectangle,
+%    minimum width=2.5cm,
+%    minimum height=1cm] (bha_start) {START};
+%    
+%% set population size and iteration number
+%\node[rectangle, draw,
+%    below=of bha_start,
+%    minimum width=3.5cm,
+%    minimum height=1cm
+%] (bha_init1) {Set $N$: population size, $T$: number of iterations};
+% 
+%% Initialize population
+%\node[rectangle, draw,
+%    below=of bha_init1,
+%    minimum width=3.5cm,
+%    minimum height=1cm
+%] (bha_init2) {Initialize population $X$};
+%
+%% calculate fitness
+%\node[rectangle, draw,
+%    below=of bha_init2,
+%    minimum width=3.5cm,
+%    minimum height=1cm
+%] (bha_init3) {Calculate fitness values $fitness_i$, determine the black hole $x_{BH}$ and calculate $Event Horizon$};
+%
+%% iteration
+%\node[rectangle, draw,
+%    below=of bha_init3,
+%    minimum width=3.5cm,
+%    minimum height=1cm
+%] (bha_iter) {For iter = 1 to $T$};
+%
+%% loop through population
+%\node[rectangle, draw,
+%    below=of bha_iter,
+%    minimum width=3.5cm,
+%    minimum height=1cm
+%] (bha_pop) {For population member i = 1 to $N$};
+%
+%% random step
+%\node[rectangle, draw,
+%    below=of bha_pop,
+%    minimum width=3.5cm,
+%    minimum height=1cm
+%] (bha_randstep) {Random step towards black hole $x_{BH}$};
+%
+%% loop through population
+%\node[rectangle, draw,
+%    below=of bha_iter,
+%    minimum width=3.5cm,
+%    minimum height=1cm
+%] (bha_pop) {For population member i = 1 to $N$};
+% 
+%% fitness condition
+%\node[draw,
+%    diamond,
+%    below=of bha_randstep,
+%    minimum width=2.5cm,
+%    inner sep=0] (bha_fitness_cond) {$fitness_i<fitness_{BH}$};
+%    
+%% new black hole
+%\node[rectangle, draw,
+%    below=of bha_fitness_cond,
+%    minimum width=3.5cm,
+%    minimum height=1cm
+%] (bha_new_bh) {Set new black hole $x_{BH}=x_i$};
+% 
+%\node[draw,
+%    diamond,
+%    right=of bha_fitness_cond,
+%    minimum width=2.5cm,
+%    inner sep=0] (bha_dist_eh) { $\|x_{BH}-x_i\|<EventHorizon$};
+%    
+%% Start block
+%\node[draw,
+%    rounded rectangle,
+%    minimum width=2.5cm,
+%    minimum height=1cm] (bha_end) {END};
+% 
+% 
+%% Arrows
+%\draw[-latex,shorten >=0.2pt] (bha_start) edge (bha_init1)
+%    (bha_init1) edge (bha_init2)
+%    (bha_init2) edge (bha_init3)
+%    (bha_init3) edge (bha_iter)
+%    (bha_iter) edge (bha_pop)
+%    (bha_pop) edge (bha_randstep)
+%    (bha_randstep) edge (block3)
+%    (block3) edge (block4);
+% 
+%\draw[-latex] (block4) -| (block5)
+%    node[pos=0.25,fill=white,inner sep=0]{Yes};
+% 
+%\draw[-latex] (block4) -| (block6)
+%    node[pos=0.25,fill=white,inner sep=0]{No};
+% 
+%\draw[-latex] (block5) edge node[pos=0.4,fill=white,inner sep=2pt]{No}(block7)
+%    (block5) -| (block8)
+%        node[pos=0.25,fill=white,inner sep=0]{Yes};
+% 
+%\draw[-latex] (block6) edge node[pos=0.4,fill=white,inner sep=2pt]{No}(block9)
+%    (block6) -| (block10)
+%        node[pos=0.25,fill=white,inner sep=0]{Yes};
+% 
+%\end{tikzpicture}
+%
+%\caption{Flowchart of Black Hole Algorithm (BHA)}
+%\end{figure}
 
 
 
 \begin{thebibliography}{9}
+\bibitem{woa1}
+S. Mirjalili, A. Lewis, 2015.\textit{The Whale Optimization Algorithm.} Elsevier 2016: p. 51-67.
+
 \bibitem{bha1} 
 Hatamlou, A., 2012. \textit{Black hole: A new heuristic optimization approach for data clustering.} Information sciences, 2012: p. 175-184. 
 
