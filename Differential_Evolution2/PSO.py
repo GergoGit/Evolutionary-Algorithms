@@ -45,7 +45,7 @@ class PSO(object):
         self.min_bound = np.asarray([min(dim) for dim in self.search_space])
         self.max_bound = np.asarray([max(dim) for dim in self.search_space])
         self.dim_range = np.fabs(self.min_bound - self.max_bound)
-        self.dim_num = objective.dim_num
+        self.n_dim = objective.n_dim
         
         self.c1=c1
         self.c2=c2
@@ -58,7 +58,7 @@ class PSO(object):
 
         
     def initialize_population(self):
-        population = self.min_bound + np.random.rand(self.population_size, self.dim_num) * self.dim_range
+        population = self.min_bound + np.random.rand(self.population_size, self.n_dim) * self.dim_range
         fitness = np.asarray([self.obj_fn(individual) for individual in population])
         best_idx = np.argmin(fitness)
         best = population[best_idx]
@@ -74,9 +74,9 @@ class PSO(object):
         population, fitness, best_idx, best = self.initialize_population()
         particle_indiv_best = population.copy()
         particle_fitness = fitness.copy()
-        velocity = np.zeros(shape=(self.population_size, self.dim_num))
+        velocity = np.zeros(shape=(self.population_size, self.n_dim))
 
-        self.best_par = np.empty(shape=(0, self.dim_num))
+        self.best_par = np.empty(shape=(0, self.n_dim))
         self.best_fitness = np.empty(shape=(0, 1))
         
         for nth_gen in range(self.generation_num):
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     plt.plot(optimiser.best_fitness)
     plt.legend()    
     
-    # optimiser.dim_num
+    # optimiser.n_dim
     # optimiser.best_fitness
     # optimiser.termination.metric_list
     # optimiser.termination.check_list

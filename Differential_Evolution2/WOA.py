@@ -51,7 +51,7 @@ class WOA(object):
         self.min_bound = np.asarray([min(dim) for dim in self.search_space])
         self.max_bound = np.asarray([max(dim) for dim in self.search_space])
         self.dim_range = np.fabs(self.min_bound - self.max_bound)
-        self.n_dim = objective.dim_num
+        self.n_dim = objective.n_dim
         
         self.population_size = population_size
         self.n_generation = n_generation
@@ -70,8 +70,7 @@ class WOA(object):
         A = 2 * a * np.random.rand() - a
         C = 2 * np.random.rand()
         l = np.random.uniform(-1, 1)
-        D = np.zeros(shape=self.n_dim)
-        return A, C, l, D
+        return A, C, l
             
     def check_search_space(self, mutant: float):
         mutant = np.clip(mutant, a_min=self.min_bound, a_max=self.max_bound)
@@ -89,7 +88,7 @@ class WOA(object):
             a = 2 * (1 - nth_gen / self.n_generation)
      
             for indiv_idx in range(self.population_size):
-                A, C, l, D = self.initialize_parameters(a)
+                A, C, l = self.initialize_parameters(a)
                 
                 if np.random.rand() < self.strategy_switch_probability:
                     # Encircling prey

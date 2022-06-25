@@ -193,7 +193,7 @@ class DE(object):
         self.min_bound = np.asarray([min(dim) for dim in self.search_space])
         self.max_bound = np.asarray([max(dim) for dim in self.search_space])
         self.dim_range = np.fabs(self.min_bound - self.max_bound)
-        self.dim_num = objective.dim_num
+        self.n_dim = objective.n_dim
         
         self.mutation_factor = mutation_factor
         self.crossover_prob = crossover_prob
@@ -204,14 +204,14 @@ class DE(object):
         self.n_difference_vectors = int(n_difference_vectors)
         
         self.M = select_mutation_variant(self.individual_selection_type,
-                                    self.n_difference_vectors,
-                                    self.mutation_factor)
+                                        self.n_difference_vectors,
+                                        self.mutation_factor)
         
         self.mutation = self.M.subvariant_fn()
                
         
     def initialize_population(self):
-        population = self.min_bound + np.random.rand(self.population_size, self.dim_num) * self.dim_range
+        population = self.min_bound + np.random.rand(self.population_size, self.n_dim) * self.dim_range
         fitness = np.asarray([self.obj_fn(individual) for individual in population])
         best_idx = np.argmin(fitness)
         best = population[best_idx]
@@ -219,15 +219,15 @@ class DE(object):
         
     def crossover(self, mutant: float, individual: float):
         if self.crossover_type == 'bin':
-            crossover_vector = np.random.rand(self.dim_num) < self.crossover_prob
+            crossover_vector = np.random.rand(self.n_dim) < self.crossover_prob
         if self.crossover_type == 'exp':
             L = 0
-            j = np.random.randint(low=0, high=self.dim_num)
+            j = np.random.randint(low=0, high=self.n_dim)
             random_number = np.random.rand()
-            crossover_vector = np.asarray([False] * self.dim_num)
-            while random_number < self.crossover_prob and L < self.dim_num:
+            crossover_vector = np.asarray([False] * self.n_dim)
+            while random_number < self.crossover_prob and L < self.n_dim:
                 L += 1
-                j = (j+1) % self.dim_num
+                j = (j+1) % self.n_dim
                 random_number = np.random.rand()
                 crossover_vector[j] = True
         offspring = np.where(crossover_vector, mutant, individual)
@@ -240,7 +240,7 @@ class DE(object):
         
     def run(self):
         population, fitness, best_idx, best = self.initialize_population()
-        self.best_par = np.empty(shape=(0, self.dim_num))
+        self.best_par = np.empty(shape=(0, self.n_dim))
         self.best_fitness = np.empty(shape=(0, 1))
         
         for nth_gen in range(self.generation_num):
@@ -289,7 +289,7 @@ class OBDE(object):
         self.min_bound = np.asarray([min(dim) for dim in self.search_space])
         self.max_bound = np.asarray([max(dim) for dim in self.search_space])
         self.dim_range = np.fabs(self.min_bound - self.max_bound)
-        self.dim_num = objective.dim_num
+        self.n_dim = objective.n_dim
         
         self.mutation_factor = mutation_factor
         self.crossover_prob = crossover_prob
@@ -301,14 +301,14 @@ class OBDE(object):
         self.n_difference_vectors = int(n_difference_vectors)
         
         self.M = select_mutation_variant(self.individual_selection_type,
-                                    self.n_difference_vectors,
-                                    self.mutation_factor)
+                                        self.n_difference_vectors,
+                                        self.mutation_factor)
         
         self.mutation = self.M.subvariant_fn()
                
         
     def initialize_population(self):
-        population = self.min_bound + np.random.rand(self.population_size, self.dim_num) * self.dim_range
+        population = self.min_bound + np.random.rand(self.population_size, self.n_dim) * self.dim_range
         fitness = np.asarray([self.obj_fn(individual) for individual in population])
         best_idx = np.argmin(fitness)
         best = population[best_idx]
@@ -316,15 +316,15 @@ class OBDE(object):
         
     def crossover(self, mutant: float, individual: float):
         if self.crossover_type == 'bin':
-            crossover_vector = np.random.rand(self.dim_num) < self.crossover_prob
+            crossover_vector = np.random.rand(self.n_dim) < self.crossover_prob
         if self.crossover_type == 'exp':
             L = 0
-            j = np.random.randint(low=0, high=self.dim_num)
+            j = np.random.randint(low=0, high=self.n_dim)
             random_number = np.random.rand()
-            crossover_vector = np.asarray([False] * self.dim_num)
-            while random_number < self.crossover_prob and L < self.dim_num:
+            crossover_vector = np.asarray([False] * self.n_dim)
+            while random_number < self.crossover_prob and L < self.n_dim:
                 L += 1
-                j = (j+1) % self.dim_num
+                j = (j+1) % self.n_dim
                 random_number = np.random.rand()
                 crossover_vector[j] = True
         offspring = np.where(crossover_vector, mutant, individual)
@@ -341,7 +341,7 @@ class OBDE(object):
         """
         opposition = np.zeros_like(population)
         for idx in range(self.population_size):
-            for dim in range(self.dim_num):
+            for dim in range(self.n_dim):
                 opposition[idx,dim] = self.max_bound[dim] - np.abs(self.min_bound[dim] - population[idx,dim])
         population_and_opposition = np.concatenate((population, opposition), axis=0)
         fitness_all = np.asarray([self.obj_fn(individual) for individual in population_and_opposition])
@@ -353,7 +353,7 @@ class OBDE(object):
         
     def run(self):
         population, fitness, best_idx, best = self.initialize_population()
-        self.best_par = np.empty(shape=(0, self.dim_num))
+        self.best_par = np.empty(shape=(0, self.n_dim))
         self.best_fitness = np.empty(shape=(0, 1))
         
         for nth_gen in range(self.generation_num):
@@ -404,7 +404,7 @@ if __name__ == "__main__":
     plt.plot(optimiser.best_fitness)
     plt.legend()    
     
-    # optimiser.dim_num
+    # optimiser.n_dim
     # optimiser.best_fitness
     # optimiser.termination.metric_list
     # optimiser.termination.check_list

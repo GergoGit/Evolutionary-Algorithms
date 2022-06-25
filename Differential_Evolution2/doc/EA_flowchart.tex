@@ -55,15 +55,155 @@
 \section{Pseudo code}
 \section{Flowchart}
 
-\chapter{Whale Optimization Algorithm (WOA)}
-\section{Story}
-\section{Pseudo code}
-\section{Flowchart}
-
 \chapter{Grey Wolf Optimization (GWO)}
 \section{Story}
+
+GWO \cite{gwo1} meta-heuristic approach was designed based on the group hierarchy and the hunting strategy of grey wolfs in nature. Grey wolfs normally live in a pack of 5-12 members with strong social hierarchy. The most dominant one, the leader is the alpha (in nature a pair of male and female). The alfa's responsibility to make decisions about hunting, sleeping, etc. The second most dominant is beta, who can be considered as an experienced, skilled member of the pack helping the alpha making decisions. The beta is subordinate to the alfa, but plays a discipliner role for the rest of the wolfes. The omega is the lowest ranked wolf, he has to submit to anyone in the pack. Wolfs who are not alfa, beta or omega are just called subordinates. They play the role of scouts, hunters, sentinels, caretakers. The social behaviour appears in hunting as well in a characteristic fashion. The GWO algorithm mimics the three stage hunting mechanism of grey wolfs: searching for prey, encircling prey and attacking. Four types of pack members can be found in the model. There are three dominant wolfes, alpha, beta and delta. They have the best fitness value. The rest of the wolfs are subordinates or omega who are guided by the three dominant wolfs. \\
+
+\noindent
+Let $X=\{x_1,x_2,\ldots,x_N\}$ population of wolfs, where $N$ is the population size and $x_i \in \R^D$.
+$f: \R^{D}\to\R^1$ is the fitness function and $fitness_i=f(x_i)$ is the fitness value of $x_i$.\\
+\noindent
+Three parameters are needed to be updated: $a$, $A$ and $C$. \\
+$a$ is decreasing from 2 to 0 by iteration linearly: \\
+\begin{equation}\label{eqn_gwo_a_param}
+a_{t+1}=2*(1-\frac{t}{T}) 
+\end{equation}
+\begin{equation}\label{eqn_gwo_A_param}
+A=2*a*rand_{1}-a
+\end{equation}
+So $A$ is a random value in the interval $[-2a,2a]$. \\
+\begin{equation}\label{eqn_gwo_C_param}
+C=2*rand_{2}
+\end{equation}
+Hence $C$ is a random value in the interval $[0,2]$. \\
+Where $rand_{i} \in U(0, 1)$, where $U$ stands for uniform distribution. \\ \\
+Movement of wolfs determined by the leading wolfs and through coefficient vectors in the following way:
+$D_{\alpha}=|C_1*x_{\alpha}(t)-x_i(t)|$, $D_{\beta}=|C_2*x_{\beta}(t)-x_i(t)|$, $D_{\delta}=|C_3*x_{\delta}(t)-x_i(t)|$ \\
+$X_1=x_{\alpha}(t)-A_1*D_{\alpha}$, $X_2=x_{\beta}(t)-A_2*D_{\beta}$, $X_3=x_{\delta}(t)-A_3*D_{\delta}$ \\
+\begin{equation}\label{eqn_gwo_step}
+x_i(t+1)=\frac{X_1+X_2+X_3}{3}
+\end{equation}
+where $x_i(t)$ is the location of the ith wolf at iteration $t$, and $x_{\alpha}$ is the location of alpha. $x_{\alpha}: fitness_{\alpha}=\displaystyle \min_{i=1,\dots, N}f(x_i)$ (min because of minimization problem). $x_{\beta}$ has the second best fitness value, $x_{\delta}$ has the third one.\\ \\
+Searching for prey (exploration) as other phases of hunting guided by the 3 dominant wolf. $|A|>1$ cases oblige the agent to diverge from the prey and search for better prey (solution). Encircling the prey is also controlled by coefficient vectors $A$ and $C$ and the location of alpha, beta, delta. Attacking of the prey (exploitation) phase is active when $|A|<1$. In this situation the force towards the prey is getting strong.\\
+
 \section{Pseudo code}
-\section{Flowchart}
+
+\begin{algorithm}[H]
+\caption{Grey Wolf Optimizer}
+ 
+ \Begin{
+ Set $N$: population size, $T$: number of iterations \\
+ Initialize random population of wolfs $X=\{x_1,x_2,\ldots,x_N\}$, \\
+ Calculate fitness values $fitness_i$ for $i \in
+ \{1,2,...,N\}$\\
+ \While{$t\leq T$ or Stopping criteria not met}{
+  Decrease the value of $a$ by Equation \ref{eqn_gwo_a_param}\\
+  Determine the three dominant wolfs $x_{alfa}, x_{beta}, x_{delta}$ \\
+  \For{$i \gets 1 \textrm{ to } N$}{
+  	  Update $A$ and $C$ parameters by Equation \ref{eqn_gwo_A_param} and \ref{eqn_gwo_C_param} \\
+      Update location of wolf $x_i$ by Equation \ref{eqn_gwo_step} \\
+      Check search space \\
+      Calculate $fitness_i=f(x_i)$ \\
+      \If{$fitness_i<fitness_{best}$}{
+      $x_{best}=x_i$ \\
+      $fitness_{best}=fitness_i$ \\
+    }
+    }
+    Check Stopping Criteria \\
+    $t=t+1$
+ }
+ }
+\end{algorithm}
+
+%\section{Flowchart}
+
+\chapter{Whale Optimization Algorithm (WOA)}
+\section{Story}
+
+WOA \cite{woa1} was inspired by the bubble-net attack of humpback whales. Adult humpback whales have almost the size of a school bus and their main target preys are krills and small fish herds. Whales are very intelligent mammals. They can live and hunt alone and in groups as well. Humpback whales' special hunting method is called bubble-net feeding. This can be observed when small fish herds are close to the surface. The whale dive down first around 12 meters under the herd and then starst moving upward in a spiral shape by creating bubbles along the path to herd the krill herd together before the attack. This manouver was modelled as an optimization algorithm. The formalization is somewhat similar to Grey Wolf Optimizer's. But in this case the agents are drived in the exploitation phase by only one whale with the best fitness. And the exploration and exploitation
+
+\noindent
+Let $X=\{x_1,x_2,\ldots,x_N\}$ population of whales, where $N$ is the population size and $x_i \in \R^D$.
+$f: \R^{D}\to\R^1$ is the fitness function and $fitness_i=f(x_i)$ is the fitness value of $x_i$.\\
+\noindent
+$b$ is a constant parameter. Generally $b=1$. It affects the spiral encircling move.
+4 parameters are needed to be updated: $a$, $A$, $C$ and $l$. \\
+$a$ is decreasing from 2 to 0 by iteration linearly: \\
+\begin{equation}\label{eqn_woa_a_param}
+a_{t+1}=2*(1-\frac{t}{T}) 
+\end{equation}
+\begin{equation}\label{eqn_woa_A_param}
+A=2*a*rand_{1}-a
+\end{equation}
+So $A$ is a random value in the interval $[-2a,2a]$. \\
+\begin{equation}\label{eqn_woa_C_param}
+C=2*rand_{2}
+\end{equation}
+Hence $C$ is a random value in the interval $[0,2]$. \\
+\begin{equation}\label{eqn_woa_l_param}
+l=rand_{3}
+\end{equation}
+Where $rand_1 and rand_2 \in U(0, 1)$, $rand_2 \in U(-1, 1)$, and $U$ stands for uniform distribution. \\ \\
+The exploration and exploitation phases are also controlled by a random mechanism. If $rand<p$ or $rand\geq p$ ($rand \in U(0, 1)$) the algorithm switches between strategies. $p$ is a fixed parameter, generally $p=0.5$.\\
+The movement of whales in the population determined by the following way: \\
+If $rand<p$ and $|A|<1$: \\
+$D=|C*x_{best}(t)-x_i(t)|$ \\
+\begin{equation}\label{eqn_woa_exploit_step}
+x_i(t+1)=x_{best}(t)-A*D
+\end{equation}
+If $rand<p$ and $|A|>1$: \\
+$D=|C*x_{rand}(t)-x_i(t)|$ \\
+\begin{equation}\label{eqn_woa_explore_step}
+x_i(t+1)=x_{rand}(t)-A*D
+\end{equation}
+Where $x_{rand}$ is a random member of the whale population. \\
+If $rand\geq p$:
+$D=|x_{best}(t)-x_i(t)|$ \\
+\begin{equation}\label{eqn_woa_spiral_step}
+x_i(t+1)=D*exp(bl)*cos(2\pi l)+x_{best}(t)
+\end{equation}
+where $x_i(t)$ is the location of the ith wolf at iteration $t$, and $x_{best}$ is the location of the whale with best fitness. $x_{best}: fitness_{best}=\displaystyle \min_{i=1,\dots, N}f(x_i)$ (min because of minimization problem). \\ \\
+Searching for prey (exploration) as other phases of hunting guided by the 3 dominant wolf. $|A|>1$ cases oblige the agent to diverge from the prey and search for better prey (solution). Encircling the prey is also controlled by coefficient vectors $A$ and $C$ and the location of alpha, beta, delta. Attacking of the prey (exploitation) phase is active when $|A|<1$. In this situation the force towards the prey is getting strong.\\
+
+\section{Pseudo code}
+
+\begin{algorithm}[H]
+\caption{Whale Optimization Algorithm}
+ 
+ \Begin{
+ Set $N$: population size, $T$: number of iterations \\
+ Set $p$: strategy switch probability, $b$: constant of the spiral \\
+ Initialize random population of whales $X=\{x_1,x_2,\ldots,x_N\}$, \\
+ Calculate fitness values $fitness_i$ for $i \in
+ \{1,2,...,N\}$\\
+ \While{$t\leq T$ or Stopping criteria not met}{
+  Decrease the value of $a$ by Equation \ref{eqn_woa_a_param}\\
+  Determine the best whale $x_{best}$ \\
+  \For{$i \gets 1 \textrm{ to } N$}{
+  	  Update $A$, $C$ and $l$ parameters by Equation \ref{eqn_woa_A_param}, \ref{eqn_woa_C_param} and \ref{eqn_woa_l_param} \\
+  	  \If{$rand<p$}{
+  	  	\If{$|A|<1$}{
+  	  	Update location of whale $x_i$ by Equation \ref{eqn_woa_exploit_step} \\
+  	  	}
+  	  	\Else{
+  	  	Update location of whale $x_i$ by Equation \ref{eqn_woa_explore_step} \\
+  	  	}
+      }
+      \Else{
+      Update location of whale $x_i$ by Equation \ref{eqn_woa_spiral_step} \\
+      }
+      \If{$fitness_i<fitness_{best}$}{
+      $x_{best}=x_i$ \\
+      $fitness_{best}=fitness_i$ \\
+      }
+    }
+    Check Stopping Criteria \\
+    $t=t+1$
+ }
+ }
+\end{algorithm}
+%\section{Flowchart}
 
 \chapter{Flower Pollination Algorithm (FPA)}
 \section{Story}
@@ -105,9 +245,11 @@ Event Horizon=\frac{fitness_{BH}}{\sum\limits_{i=1}^N fitness_i}
  \Begin{
  Set $N$: population size, $T$: number of iterations \\
  Initialize random population of stars $X=\{x_1,x_2,\ldots,x_N\}$, \\
- Calculate fitness values $fitness_i$, determine the black hole $x_{BH}$, \\
+ Calculate fitness values $fitness_i$ for $i \in
+ \{1,2,...,N\}$ \\
+ Determine the black hole $x_{BH}$, \\
  Calculate $Event Horizon$ by Equation \ref{eqn_bha_event_horizon} \\
- \While{$t<=T$ or Stopping criteria not met}{
+ \While{$t\leq T$ or Stopping criteria not met}{
   \For{$i \gets 1 \textrm{ to } N$}{
       Update location of star $x_i$ by Equation \ref{eqn_bha_step} \\
       Check search space \\
@@ -258,7 +400,10 @@ Event Horizon=\frac{fitness_{BH}}{\sum\limits_{i=1}^N fitness_i}
 
 \begin{thebibliography}{9}
 \bibitem{woa1}
-S. Mirjalili, A. Lewis, 2015.\textit{The Whale Optimization Algorithm.} Elsevier 2016: p. 51-67.
+Mirjalili S., Lewis A., 2015.\textit{The Whale Optimization Algorithm.} Elsevier 2016: p. 51-67.
+
+\bibitem{gwo1}
+Mirjalili S., Mirjalili S., Lewis A., 2013.\textit{Grey Wolf Optimizer} Elsevier 2014: p. 46-61.
 
 \bibitem{bha1} 
 Hatamlou, A., 2012. \textit{Black hole: A new heuristic optimization approach for data clustering.} Information sciences, 2012: p. 175-184. 

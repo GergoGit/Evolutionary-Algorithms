@@ -36,7 +36,7 @@ class ABC(object):
         self.min_bound = np.asarray([min(dim) for dim in self.search_space])
         self.max_bound = np.asarray([max(dim) for dim in self.search_space])
         self.dim_range = np.fabs(self.min_bound - self.max_bound)
-        self.dim_num = objective.dim_num
+        self.n_dim = objective.n_dim
         
         self.limit = limit
         self.n_bees = round(worker_bee_prop * population_size)
@@ -45,14 +45,14 @@ class ABC(object):
 
         
     def initialize_population(self):
-        population = self.min_bound + np.random.rand(self.population_size, self.dim_num) * self.dim_range
+        population = self.min_bound + np.random.rand(self.population_size, self.n_dim) * self.dim_range
         fitness = np.asarray([self.obj_fn(individual) for individual in population])
         best_idx = np.argmin(fitness)
         best = population[best_idx]
         return population, fitness, best_idx, best
     
     def search_rand_place(self):
-        new_place = self.min_bound + np.random.rand(self.dim_num) * self.dim_range
+        new_place = self.min_bound + np.random.rand(self.n_dim) * self.dim_range
         return new_place
     
     
@@ -63,7 +63,7 @@ class ABC(object):
         
     def run(self):
         population, fitness, best_idx, best = self.initialize_population()
-        self.best_par = np.empty(shape=(0, self.dim_num))
+        self.best_par = np.empty(shape=(0, self.n_dim))
         self.best_fitness = np.empty(shape=(0, 1))
         
         bad_trials = np.zeros(shape=(self.population_size))
@@ -74,7 +74,7 @@ class ABC(object):
             for indiv_idx in range(self.n_bees):                          
                 idxs = [i for i in range(self.population_size) if i != indiv_idx]
                 random_partner = population[np.random.choice(idxs, 1)].ravel()
-                phi = np.random.uniform(-1, 1, self.dim_num)
+                phi = np.random.uniform(-1, 1, self.n_dim)
                 new_place = population[indiv_idx] + phi * (population[indiv_idx] - random_partner)
                 new_place = self.check_search_space(new_place)
                 new_place_fitness = self.obj_fn(new_place)
@@ -94,7 +94,7 @@ class ABC(object):
                 if np.random.rand() < P[indiv_idx]:
                     idxs = [i for i in range(self.population_size) if i != indiv_idx]
                     random_partner = population[np.random.choice(idxs, 1)].ravel()
-                    phi = np.random.uniform(-1, 1, self.dim_num)
+                    phi = np.random.uniform(-1, 1, self.n_dim)
                     new_place = population[indiv_idx] + phi * (population[indiv_idx] - random_partner)
                     new_place = self.check_search_space(new_place)
                     new_place_fitness = self.obj_fn(new_place)
@@ -147,7 +147,7 @@ if __name__ == "__main__":
     plt.plot(optimiser.best_fitness)
     plt.legend()    
     
-    # optimiser.dim_num
+    # optimiser.n_dim
     # optimiser.best_fitness
     # optimiser.termination.metric_list
     # optimiser.termination.check_list

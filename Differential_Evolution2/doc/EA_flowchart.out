@@ -18,22 +18,20 @@
 \BOOKMARK [1][-]{section.5.1}{Story}{chapter.5}% 18
 \BOOKMARK [1][-]{section.5.2}{Pseudo code}{chapter.5}% 19
 \BOOKMARK [1][-]{section.5.3}{Flowchart}{chapter.5}% 20
-\BOOKMARK [0][-]{chapter.6}{Whale Optimization Algorithm \(WOA\)}{}% 21
+\BOOKMARK [0][-]{chapter.6}{Grey Wolf Optimization \(GWO\)}{}% 21
 \BOOKMARK [1][-]{section.6.1}{Story}{chapter.6}% 22
 \BOOKMARK [1][-]{section.6.2}{Pseudo code}{chapter.6}% 23
-\BOOKMARK [1][-]{section.6.3}{Flowchart}{chapter.6}% 24
-\BOOKMARK [0][-]{chapter.7}{Grey Wolf Optimization \(GWO\)}{}% 25
-\BOOKMARK [1][-]{section.7.1}{Story}{chapter.7}% 26
-\BOOKMARK [1][-]{section.7.2}{Pseudo code}{chapter.7}% 27
-\BOOKMARK [1][-]{section.7.3}{Flowchart}{chapter.7}% 28
-\BOOKMARK [0][-]{chapter.8}{Flower Pollination Algorithm \(FPA\)}{}% 29
-\BOOKMARK [1][-]{section.8.1}{Story}{chapter.8}% 30
-\BOOKMARK [1][-]{section.8.2}{Pseudo code}{chapter.8}% 31
-\BOOKMARK [1][-]{section.8.3}{Flowchart}{chapter.8}% 32
-\BOOKMARK [0][-]{chapter.9}{Firefly Algorithm \(FA\)}{}% 33
-\BOOKMARK [1][-]{section.9.1}{Story}{chapter.9}% 34
-\BOOKMARK [1][-]{section.9.2}{Pseudo code}{chapter.9}% 35
-\BOOKMARK [1][-]{section.9.3}{Flowchart}{chapter.9}% 36
-\BOOKMARK [0][-]{chapter.10}{Black Hole Algorithm \(BHA\)}{}% 37
-\BOOKMARK [1][-]{section.10.1}{Story}{chapter.10}% 38
-\BOOKMARK [1][-]{section.10.2}{Pseudo code}{chapter.10}% 39
+\BOOKMARK [0][-]{chapter.7}{Whale Optimization Algorithm \(WOA\)}{}% 24
+\BOOKMARK [1][-]{section.7.1}{Story}{chapter.7}% 25
+\BOOKMARK [1][-]{section.7.2}{Pseudo code}{chapter.7}% 26
+\BOOKMARK [0][-]{chapter.8}{Flower Pollination Algorithm \(FPA\)}{}% 27
+\BOOKMARK [1][-]{section.8.1}{Story}{chapter.8}% 28
+\BOOKMARK [1][-]{section.8.2}{Pseudo code}{chapter.8}% 29
+\BOOKMARK [1][-]{section.8.3}{Flowchart}{chapter.8}% 30
+\BOOKMARK [0][-]{chapter.9}{Firefly Algorithm \(FA\)}{}% 31
+\BOOKMARK [1][-]{section.9.1}{Story}{chapter.9}% 32
+\BOOKMARK [1][-]{section.9.2}{Pseudo code}{chapter.9}% 33
+\BOOKMARK [1][-]{section.9.3}{Flowchart}{chapter.9}% 34
+\BOOKMARK [0][-]{chapter.10}{Black Hole Algorithm \(BHA\)}{}% 35
+\BOOKMARK [1][-]{section.10.1}{Story}{chapter.10}% 36
+\BOOKMARK [1][-]{section.10.2}{Pseudo code}{chapter.10}% 37
