@@ -37,7 +37,54 @@
 
 \chapter{Evolutionary Strategy (ES)}
 \section{Story}
+
+Evolution (or evolutionary) strategy (ES) \cite{es1, es2} is a search paradigm inspired by biological evolution. ES implenenting a repeated process of stochastically generating new solution candidates from the actual potential solution set. More precisely in every generation (iteration) the individuals (actual solutions) of the population alone or by forming pairs generate offsprings (new candidates). The fitness of the offsprings are evaluated and the best ones will become the parents for the next generation. There are many variants of evolution strategy. These varians work with different (fitness-based and fitness-independent) mating and recombination strategies. Here we outline a simple version where every member of the population on their own generate multiple offsprings. At the end of every generation it can be decided to apply elitism where we can keep the best parents in the next generation or not. \\
+
+\noindent
+Let $X=\{x_1,x_2,\ldots,x_N\}$ population of individuals, where $N$ is the population size and $x_i \in \R^D$.
+$f: \R^{D}\to\R^1$ is the fitness function and $fitness_i=f(x_i)$ is the fitness value of $x_i$. Parameter $\sigma$ controls the random offspring generation process.\\
+\noindent
+Offsprings are generated using the following formula: \\
+\begin{equation}\label{eqn_es_generate_offspring}
+z_{ij}=x_i(t)+rand_j*\sigma(t)
+\end{equation}
+Where $rand_{j} \in U(0, 1)$, where $U$ stands for uniform distribution. \\ 
+We apply a $\delta$ decay parameter on $\sigma$ to gradually decrease the distance between the parent $x_i$ and the created offspring $z_{ij}$ by generations using the following equation:\\
+\begin{equation}\label{eqn_es_sigma_decay}
+\sigma(t+1)=\sigma(t)*\delta
+\end{equation}
+
 \section{Pseudo code}
+
+\begin{algorithm}[H]
+\caption{Evolutionary Strategy}
+ 
+ \Begin{
+ Set $N$: population size, $T$: number of iterations, $k$: number of offsprings, $\sigma$: control parameter, $\delta$: decay parameter for $\sigma$ \\
+ Initialize random population of individuals $X=\{x_1,x_2,\ldots,x_N\}$, \\
+ Calculate fitness values $fitness_i$ for $i \in
+ \{1,2,...,N\}$\\
+ \While{$t\leq T$ or Stopping criteria not met}{
+  \For{$i \gets 1 \textrm{ to } N$}{
+  	  \For{$j \gets 1 \textrm{ to } k$}{
+  	  	 Create offspring $z_{ij}$ by Equation \ref{eqn_es_generate_offspring} \\
+         Check search space \\
+         Calculate fitess value $fitness_{ij}$\\  	  
+  	  }
+    }
+    \If{apply elitism}{
+  	  	Create a new population keeping the best $N$ individuals including parents and offsprings based on fitness values. \\
+  	  	}
+  	\Else{
+  	  	Create a new population keeping the best $N$ offsprings based on fitness values. \\
+  	  	}
+    Check Stopping Criteria \\
+    Decrease the value of $\sigma$ by Equation \ref{eqn_es_sigma_decay}\\
+    $t=t+1$
+ }
+ }
+\end{algorithm}
+
 \section{Flowchart}
 
 \chapter{Cuckoo Search (CS)}
@@ -399,6 +446,13 @@ Event Horizon=\frac{fitness_{BH}}{\sum\limits_{i=1}^N fitness_i}
 
 
 \begin{thebibliography}{9}
+
+\bibitem{es1}
+Rechenberg I., 1971.\textit{Evolutionsstrategie – Optimierung technischer Systeme nach Prinzipien der biologischen Evolution (PhD thesis).} Frommann-Holzboog 1973
+
+\bibitem{es2}
+Hans-Paul Schwefel, 1974.\textit{Numerische Optimierung von Computer-Modellen (PhD thesis).} Birkhäuser 1977
+
 \bibitem{woa1}
 Mirjalili S., Lewis A., 2015.\textit{The Whale Optimization Algorithm.} Elsevier 2016: p. 51-67.
 

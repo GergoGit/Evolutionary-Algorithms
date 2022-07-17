@@ -6,6 +6,7 @@ Created on Sun May  1 23:49:23 2022
 
 Evolutionary Strategy (ES)
 
+https://sci-hub.se/10.1007/978-3-662-43505-2_44
 """
 
 # import os
@@ -58,6 +59,11 @@ class ES(object):
     def check_search_space(self, mutant: float):
         mutant = np.clip(mutant, a_min=self.min_bound, a_max=self.max_bound)
         return mutant
+    
+    def create_offspring(self, individual):
+        offspring = individual + np.random.normal(size=self.n_dim) * self.sigma * self.dim_range
+        offspring = self.check_search_space(offspring)
+        return offspring
             
     def run(self):
         population, fitness, best_idx, best = self.initialize_population()
@@ -73,8 +79,7 @@ class ES(object):
                 
                 for _ in range(self.n_offspring):  
                 
-                    offspring = population[indiv_idx] + np.random.normal(size=self.n_dim) * self.sigma * self.dim_range
-                    offspring = self.check_search_space(offspring)
+                    offspring = self.create_offspring(population[indiv_idx])
                     all_offspring = np.vstack((all_offspring, offspring))
                     
             if self.apply_elitism:
