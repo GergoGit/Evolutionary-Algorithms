@@ -6,6 +6,8 @@ Created on Sun May  1 12:22:36 2022
 
 Cuckoo Search algorithm (CS)
 
+https://sci-hub.se/10.1109/nabic.2009.5393690
+
 https://www.researchgate.net/publication/45904981_Cuckoo_Search_via_Levy_Flights
 https://www.youtube.com/watch?v=8sHkQ8kGEr8
 https://github.com/YutaUme/CS/blob/master/cs.py
@@ -60,17 +62,17 @@ class CS0(object):
         best = population[best_idx]
         return population, fitness, best_idx, best
     
-    def LevyFlight(self, n_dim):
+    def LevyFlight(self):
         beta = 1.5
-        u = np.random.normal(loc=0, scale=0.6966, size=n_dim)
-        v = np.random.normal(loc=0, scale=1, size=n_dim)
+        u = np.random.normal(loc=0, scale=0.6966, size=self.n_dim)
+        v = np.random.normal(loc=0, scale=1, size=self.n_dim)
         s = u/(abs(v)**(1/beta))
         return s
     
     def new_cuckoo_via_levyflight(self, population):
         idxs = [i for i in range(self.population_size)]
         random_nests = population[np.random.choice(idxs, 3, replace=False)].ravel()
-        offspring = random_nests[0] + self.LevyFlight(self.n_dim)*(random_nests[1] - random_nests[2])
+        offspring = random_nests[0] + self.LevyFlight()*(random_nests[1] - random_nests[2])
         return offspring
     
     def leave_worst_nests_and_create_new_ones(self, population, fitness):
@@ -80,7 +82,7 @@ class CS0(object):
         for indiv_idx in idxs_leave:
             random_nests = np.random.choice(idxs_keep, 2, replace=False)
             population[indiv_idx] = population[indiv_idx] + \
-                self.LevyFlight(self.n_dim)*(population[random_nests[0]] - population[random_nests[1]])
+                self.LevyFlight()*(population[random_nests[0]] - population[random_nests[1]])
             population[indiv_idx] = self.check_search_space(population[indiv_idx])
             fitness[indiv_idx] = self.obj_fn(population[indiv_idx])
         return population, fitness

@@ -94,7 +94,48 @@ $\delta$ parameter is responsible for the transition between exploration and exp
 
 \chapter{Cuckoo Search (CS)}
 \section{Story}
+Cuckoo Search (CS) \cite{cs1} is a metaheuristic algorithm based on the obligate brood parasitic behaviour of some cuckoo species. Cuckoos are birds with an agressive reproduction strategy.  Some cockoo species lay their eggs in communal nests, though they may remove others’ eggs to increase the hatching probability of their own eggs. Some other cockoo species lay their eggs in the nests of other host birds. Some host birds can engage direct conflict with the intruding cuckoos. Or if a host bird discovers the eggs are not their owns, they will either throw these alien eggs away or simply abandon it's nest and build a new nest elsewhere.
+In the algorithm in each host nest there is one egg representing a solution. By iterations every cuckoo lays one egg and dumps it's egg in a randomly chosen nest, where a cuckoo egg appears as a new solution. If the new solution is a better one, than it is replaced by the original egg. The best nests will continue in the next iteration. However a given proportion of cuckoo eggs are discovered by the host bird (worst nests) and the host bird throw the egg away/abandon the nest, and build a new nest (new solution) somewhere else. Cuckoo eggs (new solutions) are generated with Lévy flights as researchers found it more efficient in the exploration phase. \\
+
+\noindent
+Let $X=\{x_1,x_2,\ldots,x_N\}$ population of host nests, where $N$ is the population size and $x_i \in \R^D$.
+$f: \R^{D}\to\R^1$ is the fitness function and $fitness_i=f(x_i)$ is the fitness value of $x_i$.\\
+New cuckoo egg is created by Lévy flight with the following formula:
+\begin{equation}\label{eqn_cs_levyflight}
+z_i=x_l(t)+rand_i*(x_m-x_n)
+\end{equation}
+where $rand_i \in$ Lévy($\lambda$), and $x_l, x_m, x_n$ are randomly chosen host nests. \\ 
+
 \section{Pseudo code}
+
+\begin{algorithm}[H]
+\caption{Cuckoo Search}
+ 
+ \Begin{
+ Set $N$: population size, $T$: number of iterations, $k$: number of cuckoos, $\rho$: proportion of abandoned nests \\
+ Initialize random population of host nests $X=\{x_1,x_2,\ldots,x_N\}$, \\
+ Calculate fitness values $fitness_i$ for $i \in
+ \{1,2,...,N\}$\\
+ \While{$t\leq T$ or Stopping criteria not met}{
+  \For{$i \gets 1 \textrm{ to } k$}{
+    Create cuckoo $z_i$ by Equation \ref{eqn_cs_levyflight} \\
+    Check search space \\
+    Calculate fitness value $fitness_{z_i}$\\
+    Choose a random host nest $x_j$ \\
+    \If{$fitness_{z_i}<fitness_j$}{
+      $x_j=z_i$ \\
+      $fitness_j=fitness_{z_i}$ \\
+      }
+    }
+    Leave $\rho$ proportion of worst nests and create new random ones. \\
+    Calculate fitness values of newly created host nests. \\
+    Determine $x_{best}$ and $fitness_{best}$. \\
+    Check Stopping Criteria \\
+    $t=t+1$
+ }
+ }
+\end{algorithm}
+
 \section{Flowchart}
 
 \chapter{Artificial Bee Colony (ABC)}
@@ -458,6 +499,10 @@ Rechenberg I., 1971.\textit{Evolutionsstrategie – Optimierung technischer Syst
 \bibitem{es2}
 Hans-Paul Schwefel, 1974.\textit{Numerische Optimierung von Computer-Modellen (PhD thesis).} Birkhäuser 1977
 
+\bibitem{cs1}
+Yang X.-S., Deb S., 2009. \textit{Cuckoo search via Lévy flights.} World Congress on Nature \& Biologically Inspired Computing, 2009 \\
+Link: \url{https://arxiv.org/abs/1003.1594v1}
+
 \bibitem{woa1}
 Mirjalili S., Lewis A., 2015.\textit{The Whale Optimization Algorithm.} Elsevier 2016: p. 51-67.
 
@@ -469,7 +514,7 @@ Hatamlou, A., 2012. \textit{Black hole: A new heuristic optimization approach fo
 
 \bibitem{bha2} 
 M. Farahmandian, A. Hatamlou, 2015. \textit{Solving optimization problems using black hole algorithm} Journal of Advanced Computer Science \& Technology, 2015: p. 68-74. \\
-Link: \url{https://www.sciencepubco.com/index.php/JACST/article/view/4094/1621}\\
+Link: \url{https://www.sciencepubco.com/index.php/JACST/article/view/4094/1621}
 
 \end{thebibliography}
 
