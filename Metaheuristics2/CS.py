@@ -169,15 +169,15 @@ class CS1(object):
         best = population[best_idx]
         return population, fitness, best_idx, best
     
-    def LevyFlight(self, n_dim):
+    def LevyFlight(self):
         beta = 1.5
-        u = np.random.normal(loc=0, scale=0.6966, size=n_dim)
-        v = np.random.normal(loc=0, scale=1, size=n_dim)
+        u = np.random.normal(loc=0, scale=0.6966, size=self.n_dim)
+        v = np.random.normal(loc=0, scale=1, size=self.n_dim)
         s = u/(abs(v)**(1/beta))
         return s
     
     def search_around_best(self, population, indiv_idx, best):
-        offspring = population[indiv_idx] + self.LevyFlight(self.n_dim)*(best - population[indiv_idx])
+        offspring = population[indiv_idx] + self.LevyFlight()*(best - population[indiv_idx])
         return offspring
     
     def abandon_and_create_new_nest(self, population, indiv_idx):
