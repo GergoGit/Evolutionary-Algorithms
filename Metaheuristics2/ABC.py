@@ -8,6 +8,7 @@ Artificial Bee Colony (ABC) algorithm
 https://github.com/ntocampos/artificial-bee-colony/blob/master/main.py
 https://github.com/renard162/BeeColPy/blob/master/beecolpy/beecolpy.py
 https://www.youtube.com/watch?v=OPWCTs0d7vA
+http://www.scholarpedia.org/article/Artificial_bee_colony_algorithm#Karaboga05
 
 """
 
@@ -22,8 +23,7 @@ class ABC(object):
                  population_size=30,
                  worker_bee_prop = 0.5,
                  generation_num=300):
-        
-                
+                        
         if stopping_criterion is not None:
             self.termination = StoppingCriterion.criteria_fn_map(stopping_criterion)()
         else:
@@ -42,7 +42,6 @@ class ABC(object):
         self.n_bees = round(worker_bee_prop * population_size)
         self.population_size = population_size
         self.generation_num = generation_num
-
         
     def initialize_population(self):
         population = self.min_bound + np.random.rand(self.population_size, self.n_dim) * self.dim_range
@@ -51,16 +50,21 @@ class ABC(object):
         best = population[best_idx]
         return population, fitness, best_idx, best
     
-    def search_rand_place(self):
-        new_place = self.min_bound + np.random.rand(self.n_dim) * self.dim_range
+    def neighborhood_search(self, population, indiv_idx):
+        idxs = [i for i in range(self.population_size) if i != indiv_idx]
+        random_partner = population[np.random.choice(idxs, 1)].ravel()
+        phi = np.random.uniform(-1, 1, self.n_dim)
+        new_place = population[indiv_idx] + phi * (population[indiv_idx] - random_partner)
         return new_place
     
-    
+    def search_random_place(self):
+        new_place = self.min_bound + np.random.rand(self.n_dim) * self.dim_range
+        return new_place
+        
     def check_search_space(self, mutant: float):
         mutant = np.clip(mutant, a_min=self.min_bound, a_max=self.max_bound)
         return mutant
-    
-        
+      
     def run(self):
         population, fitness, best_idx, best = self.initialize_population()
         self.best_par = np.empty(shape=(0, self.n_dim))
@@ -71,11 +75,12 @@ class ABC(object):
         for nth_gen in range(self.generation_num):
             
             # Employed bees
-            for indiv_idx in range(self.n_bees):                          
-                idxs = [i for i in range(self.population_size) if i != indiv_idx]
-                random_partner = population[np.random.choice(idxs, 1)].ravel()
-                phi = np.random.uniform(-1, 1, self.n_dim)
-                new_place = population[indiv_idx] + phi * (population[indiv_idx] - random_partner)
+            for indiv_idx in range(self.n_bees):         
+                # idxs = [i for i in range(self.population_size) if i != indiv_idx]
+                # random_partner = population[np.random.choice(idxs, 1)].ravel()
+                # phi = np.random.uniform(-1, 1, self.n_dim)
+                # new_place = population[indiv_idx] + phi * (population[indiv_idx] - random_partner)
+                new_place = self.neighborhood_search(population, indiv_idx)
                 new_place = self.check_search_space(new_place)
                 new_place_fitness = self.obj_fn(new_place)
                 if new_place_fitness < fitness[indiv_idx]:
@@ -92,10 +97,11 @@ class ABC(object):
             # Onlooker bees
             for indiv_idx in range(self.n_bees):
                 if np.random.rand() < P[indiv_idx]:
-                    idxs = [i for i in range(self.population_size) if i != indiv_idx]
-                    random_partner = population[np.random.choice(idxs, 1)].ravel()
-                    phi = np.random.uniform(-1, 1, self.n_dim)
-                    new_place = population[indiv_idx] + phi * (population[indiv_idx] - random_partner)
+                    # idxs = [i for i in range(self.population_size) if i != indiv_idx]
+                    # random_partner = population[np.random.choice(idxs, 1)].ravel()
+                    # phi = np.random.uniform(-1, 1, self.n_dim)
+                    # new_place = population[indiv_idx] + phi * (population[indiv_idx] - random_partner)
+                    new_place = self.neighborhood_search(population, indiv_idx)
                     new_place = self.check_search_space(new_place)
                     new_place_fitness = self.obj_fn(new_place)
                     if new_place_fitness < fitness[indiv_idx]:
@@ -110,7 +116,7 @@ class ABC(object):
             # Scout bees
             for indiv_idx in range(self.n_bees):
                 if bad_trials[indiv_idx] > self.limit:
-                    new_place = self.search_rand_place()
+                    new_place = self.search_random_place()
                     new_place_fitness = self.obj_fn(new_place)
                     if new_place_fitness < fitness[indiv_idx]:
                         population[indiv_idx] = new_place

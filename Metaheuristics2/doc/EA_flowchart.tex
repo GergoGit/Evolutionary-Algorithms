@@ -140,7 +140,75 @@ where $rand_i \in$ Lévy($\lambda$), and $x_l, x_m, x_n$ are randomly chosen hos
 
 \chapter{Artificial Bee Colony (ABC)}
 \section{Story}
+Artificial Bee Colony (ABC) \cite{abc1} algorithm is a swarm based metaheuristic algorithm inspired by the foraging behavior of honey bees. The essential components of the algorithm are the food sources, employed and unemployed foraging bees. The colony of bees is looking for the best food sources. First the bees randomly discover a set of random food sources (population). Then iteratively search for better sources (solutions) applying a special strategy. The colony consists of three type of bees. Employed bees associated with specific food sources, onlooker bees watching the dance of employed bees within the hive to choose a food source, and scout bees searching for food sources randomly. Onlookers and scouts are also called unemployed bees. Initially, all food source positions are discovered by scout bees. Thereafter, the nectar of food sources are exploited by employed bees and onlooker bees, and this continual exploitation will ultimately cause them to become exhausted. Then, the employed bee which was exploiting the exhausted food source becomes a scout bee in search of further food sources once again. In other words, the employed bee whose food source has been exhausted becomes a scout bee. In ABC, the position of a food source represents a possible solution to the problem and the nectar amount of a food source corresponds to the quality (fitness) of the associated solution. The number of employed bees is equal to the number of food sources (solutions) since each employed bee is associated with one and only one food source. \\
+
+\noindent
+Let $X=\{x_1,x_2,\ldots,x_N\}$ population of food sources, where $N$ is the population size and $x_i \in \R^D$.
+$f: \R^{D}\to\R^1$ is the fitness function and $fitness_i=f(x_i)$ is the fitness value of $x_i$.\\
+Every iteration employed bees search for new food sources using the following formula:
+\begin{equation}\label{eqn_abc_neighborhood_search}
+x_{new}=x_i(t)+\phi_i*(x_i(t)-x_{rand}(t))
+\end{equation}
+Where $\phi_i \in U(-1, 1)$, where $U$ stands for uniform distribution and $x_{rand}(t)$ is a random food source. \\
+An onlooker bees go to search for new food source after the employed bees shared the food source information with them. If they go in the actual iteration depends on probability. This probability $P_i(t)$ is calculated in every iteration with the following way:
+\begin{equation}\label{eqn_abc_prob}
+P_i(t)=0.9*(fitness_i(t)/fitness_{best}(t))+0.1
+\end{equation}
+The better the $fittness_i(t)$ compared to $fittness_{best}(t)$ the higher the probability of an onlooker bee goes to find a new food source. The onlooker bee uses the same searching strategy as the employed bee.
+The third type of bees are the scouts who search for a food source randomly. Employed bees whose solutions cannot be improved through a predetermined number of trials called "limit", their solutions are abandoned. Then, the scouts start to search for new solutions, absolutely randomly in the search space.
+
+
 \section{Pseudo code}
+
+\begin{algorithm}[H]
+\caption{Artificial Bee Colony}
+ 
+ \Begin{
+ Set $N$: population size, $T$: number of iterations, $k$: number of bees, $limit$: number of unsuccessful trials of an employed bee \\
+ Initialize random population of food sources $X=\{x_1,x_2,\ldots,x_N\}$, \\
+ Calculate fitness values $fitness_i$ for $i \in
+ \{1,2,...,N\}$\\
+ \While{$t\leq T$ or Stopping criteria not met}{
+  \For{$i \gets 1 \textrm{ to } k$}{
+    Employed bee searches for new food source $x_{new}$ by Equation \ref{eqn_abc_neighborhood_search} \\
+    Check search space \\
+    Calculate fitness value $fitness_{new}$\\
+    \If{$fitness_{new}<fitness_i$}{
+      $x_i=x_{new}$ \\
+      $fitness_i=fitness_{new}$ \\
+      }    
+    \Else{$bad\_trial_i = bad\_trial_i + 1$}
+    }
+   \For{$i \gets 1 \textrm{ to } k$}{
+    \If{$rand_i<P_i(t)$}{
+     Onlooker bee searches for new food source $x_{new}$ by Equation \ref{eqn_abc_neighborhood_search} \\
+     Check search space \\
+     Calculate fitness value $fitness_{new}$\\
+     \If{$fitness_{new}<fitness_i$}{
+      $x_i=x_{new}$ \\
+      $fitness_i=fitness_{new}$ \\
+      }
+     }
+     \Else{$bad\_trial_i = bad\_trial_i + 1$}
+     }
+   \For{$i \gets 1 \textrm{ to } k$}{
+    \If{$bad\_trial_i>limit$}{
+     Scout bee searches for new random food source $x_{new}$ \\
+     Calculate fitness value $fitness_{new}$\\
+     \If{$fitness_{new}<fitness_i$}{
+      $x_i=x_{new}$ \\
+      $fitness_i=fitness_{new}$ \\
+      $bad\_trial_i = 0$ \\
+      }
+     }
+     }  
+    
+    Check Stopping Criteria \\
+    $t=t+1$
+ }
+ }
+\end{algorithm}
+
 \section{Flowchart}
 
 \chapter{Particle Swarm Optimization (PSO)}
@@ -494,20 +562,23 @@ Event Horizon=\frac{fitness_{BH}}{\sum\limits_{i=1}^N fitness_i}
 \begin{thebibliography}{9}
 
 \bibitem{es1}
-Rechenberg I., 1971.\textit{Evolutionsstrategie – Optimierung technischer Systeme nach Prinzipien der biologischen Evolution (PhD thesis).} Frommann-Holzboog 1973
+Rechenberg I., 1971.\textit{Evolutionsstrategie – Optimierung technischer Systeme nach Prinzipien der biologischen Evolution (PhD thesis).} Frommann-Holzboog, 1973
 
 \bibitem{es2}
-Hans-Paul Schwefel, 1974.\textit{Numerische Optimierung von Computer-Modellen (PhD thesis).} Birkhäuser 1977
+Hans-Paul Schwefel, 1974.\textit{Numerische Optimierung von Computer-Modellen (PhD thesis).} Birkhäuser, 1977
 
 \bibitem{cs1}
 Yang X.-S., Deb S., 2009. \textit{Cuckoo search via Lévy flights.} World Congress on Nature \& Biologically Inspired Computing, 2009 \\
 Link: \url{https://arxiv.org/abs/1003.1594v1}
 
+\bibitem{abc1}
+Karaboga D. 2005. \textit{An idea based on honey bee swarm for numerical optimizations.} Technical Report TR06, Erciyes University, Engineering Faculty, Computer Engineering Department, 2005
+
 \bibitem{woa1}
-Mirjalili S., Lewis A., 2015.\textit{The Whale Optimization Algorithm.} Elsevier 2016: p. 51-67.
+Mirjalili S., Lewis A., 2015.\textit{The Whale Optimization Algorithm.} Elsevier, 2016: p. 51-67.
 
 \bibitem{gwo1}
-Mirjalili S., Mirjalili S., Lewis A., 2013.\textit{Grey Wolf Optimizer} Elsevier 2014: p. 46-61.
+Mirjalili S., Mirjalili S., Lewis A., 2013.\textit{Grey Wolf Optimizer} Elsevier, 2014: p. 46-61.
 
 \bibitem{bha1} 
 Hatamlou, A., 2012. \textit{Black hole: A new heuristic optimization approach for data clustering.} Information sciences, 2012: p. 175-184. 
