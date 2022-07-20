@@ -155,7 +155,11 @@ An onlooker bees go to search for new food source after the employed bees shared
 P_i(t)=0.9*(fitness_i(t)/fitness_{best}(t))+0.1
 \end{equation}
 The better the $fittness_i(t)$ compared to $fittness_{best}(t)$ the higher the probability of an onlooker bee goes to find a new food source. The onlooker bee uses the same searching strategy as the employed bee.
-The third type of bees are the scouts who search for a food source randomly. Employed bees whose solutions cannot be improved through a predetermined number of trials called "limit", their solutions are abandoned. Then, the scouts start to search for new solutions, absolutely randomly in the search space.
+The third type of bees are the scouts who search for a food source randomly. Employed bees whose solutions cannot be improved through a predetermined number of trials called "limit", their solutions are abandoned. Then, the scouts start to search for new solutions, absolutely randomly in the search space by the formula below. 
+\begin{equation}\label{eqn_abc_random_search}
+x_{i}=x^{min}+rand_{ij}*(x^{max}-x^{min})
+\end{equation}
+Where $rand_{i} \in U(0, 1)$, where $U$ stands for uniform distribution and $x^{min}$ and $x^{max}$ mean the min and max boundaries of the of the $D$ dimensional search space. \\
 
 
 \section{Pseudo code}
@@ -193,13 +197,9 @@ The third type of bees are the scouts who search for a food source randomly. Emp
      }
    \For{$i \gets 1 \textrm{ to } k$}{
     \If{$bad\_trial_i>limit$}{
-     Scout bee searches for new random food source $x_{new}$ \\
+     Scout bee searches for new random food source $x_{new}$ by Equation \ref{eqn_abc_random_search}\\
      Calculate fitness value $fitness_{new}$\\
-     \If{$fitness_{new}<fitness_i$}{
-      $x_i=x_{new}$ \\
-      $fitness_i=fitness_{new}$ \\
-      $bad\_trial_i = 0$ \\
-      }
+     $bad\_trial_i = 0$ \\
      }
      }  
     
@@ -209,7 +209,6 @@ The third type of bees are the scouts who search for a food source randomly. Emp
  }
 \end{algorithm}
 
-\section{Flowchart}
 
 \chapter{Particle Swarm Optimization (PSO)}
 \section{Story}

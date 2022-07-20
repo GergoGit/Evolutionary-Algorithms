@@ -13,25 +13,24 @@
 \contentsline {chapter}{\numberline {4}Artificial Bee Colony (ABC)}{9}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Story}{9}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Pseudo code}{12}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Flowchart}{13}{section.4.3}%
-\contentsline {chapter}{\numberline {5}Particle Swarm Optimization (PSO)}{14}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Story}{14}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Pseudo code}{14}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Flowchart}{14}{section.5.3}%
-\contentsline {chapter}{\numberline {6}Grey Wolf Optimization (GWO)}{15}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Story}{15}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Pseudo code}{17}{section.6.2}%
-\contentsline {chapter}{\numberline {7}Whale Optimization Algorithm (WOA)}{18}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Story}{18}{section.7.1}%
-\contentsline {section}{\numberline {7.2}Pseudo code}{20}{section.7.2}%
-\contentsline {chapter}{\numberline {8}Flower Pollination Algorithm (FPA)}{21}{chapter.8}%
-\contentsline {section}{\numberline {8.1}Story}{21}{section.8.1}%
-\contentsline {section}{\numberline {8.2}Pseudo code}{21}{section.8.2}%
-\contentsline {section}{\numberline {8.3}Flowchart}{21}{section.8.3}%
-\contentsline {chapter}{\numberline {9}Firefly Algorithm (FA)}{22}{chapter.9}%
-\contentsline {section}{\numberline {9.1}Story}{22}{section.9.1}%
-\contentsline {section}{\numberline {9.2}Pseudo code}{22}{section.9.2}%
-\contentsline {section}{\numberline {9.3}Flowchart}{22}{section.9.3}%
-\contentsline {chapter}{\numberline {10}Black Hole Algorithm (BHA)}{23}{chapter.10}%
-\contentsline {section}{\numberline {10.1}Story}{23}{section.10.1}%
-\contentsline {section}{\numberline {10.2}Pseudo code}{24}{section.10.2}%
+\contentsline {chapter}{\numberline {5}Particle Swarm Optimization (PSO)}{13}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Story}{13}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Pseudo code}{13}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Flowchart}{13}{section.5.3}%
+\contentsline {chapter}{\numberline {6}Grey Wolf Optimization (GWO)}{14}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Story}{14}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Pseudo code}{16}{section.6.2}%
+\contentsline {chapter}{\numberline {7}Whale Optimization Algorithm (WOA)}{17}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Story}{17}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Pseudo code}{19}{section.7.2}%
+\contentsline {chapter}{\numberline {8}Flower Pollination Algorithm (FPA)}{20}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Story}{20}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Pseudo code}{20}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Flowchart}{20}{section.8.3}%
+\contentsline {chapter}{\numberline {9}Firefly Algorithm (FA)}{21}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Story}{21}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Pseudo code}{21}{section.9.2}%
+\contentsline {section}{\numberline {9.3}Flowchart}{21}{section.9.3}%
+\contentsline {chapter}{\numberline {10}Black Hole Algorithm (BHA)}{22}{chapter.10}%
+\contentsline {section}{\numberline {10.1}Story}{22}{section.10.1}%
+\contentsline {section}{\numberline {10.2}Pseudo code}{23}{section.10.2}%
