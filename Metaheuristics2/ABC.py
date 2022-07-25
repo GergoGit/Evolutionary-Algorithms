@@ -76,10 +76,6 @@ class ABC(object):
             
             # Employed bees
             for indiv_idx in range(self.n_bees):         
-                # idxs = [i for i in range(self.population_size) if i != indiv_idx]
-                # random_partner = population[np.random.choice(idxs, 1)].ravel()
-                # phi = np.random.uniform(-1, 1, self.n_dim)
-                # new_place = population[indiv_idx] + phi * (population[indiv_idx] - random_partner)
                 new_place = self.neighborhood_search(population, indiv_idx)
                 new_place = self.check_search_space(new_place)
                 new_place_fitness = self.obj_fn(new_place)
@@ -97,10 +93,6 @@ class ABC(object):
             # Onlooker bees
             for indiv_idx in range(self.n_bees):
                 if np.random.rand() < P[indiv_idx]:
-                    # idxs = [i for i in range(self.population_size) if i != indiv_idx]
-                    # random_partner = population[np.random.choice(idxs, 1)].ravel()
-                    # phi = np.random.uniform(-1, 1, self.n_dim)
-                    # new_place = population[indiv_idx] + phi * (population[indiv_idx] - random_partner)
                     new_place = self.neighborhood_search(population, indiv_idx)
                     new_place = self.check_search_space(new_place)
                     new_place_fitness = self.obj_fn(new_place)
