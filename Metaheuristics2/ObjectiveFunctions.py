@@ -45,6 +45,27 @@ class Rastrigin(object):
         z = np.power(x, 2) - self.A * np.cos(2 * np.pi * x)
         z = self.A * self.n_dim + np.sum(z)
         return z
+    
+class two_equations_two_unknown(object):
+    """
+     2*x1 + 1*x2 = 7
+    -6*x1 + 2*x2 = 4
+    
+    x1=1
+    x2=5
+    """
+    def __init__(self):
+        self.search_space = np.array([(-100, 100)], dtype=np.float32)
+        self.minima = 0.0
+        self.minima_loc = np.array([1, 5], dtype=np.float32)
+        self.n_dim = 2
+        
+    def evaluate(self, x):
+        coef = np.array([[2, 1], [-6, 2]])
+        z = np.dot(coef, x)
+        dif = np.sum(np.abs(np.array([7, 4], dtype=np.float32) - z))
+        return dif
+    
 
 # TODO: correct Michalewicz    
 class Michalewicz(object):

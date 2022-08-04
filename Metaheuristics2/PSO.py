@@ -9,6 +9,7 @@ Particle Swarm Optimization
 https://nathanrooy.github.io/posts/2016-08-17/simple-particle-swarm-optimization-with-python/
 https://machinelearningmastery.com/a-gentle-introduction-to-particle-swarm-optimization/
 https://github.com/anyoptimization/pymoo/blob/master/pymoo/algorithms/soo/nonconvex/pso.py
+https://sci-hub.se/10.1162/EVCO_r_00180
 
 alfa = inertia
 c1 and c2: cognitive and social parameters
@@ -30,7 +31,7 @@ class PSO(object):
                  alfa_min=0,
                  alfa_max=1,
                  population_size=30, 
-                 generation_num=300):
+                 n_generation=300):
         
                 
         if stopping_criterion is not None:
@@ -54,7 +55,7 @@ class PSO(object):
         self.alfa_min=alfa_min
         self.alfa_max=alfa_max
         self.population_size = population_size
-        self.generation_num = generation_num
+        self.n_generation = n_generation
 
         
     def initialize_population(self):
@@ -79,9 +80,11 @@ class PSO(object):
         self.best_par = np.empty(shape=(0, self.n_dim))
         self.best_fitness = np.empty(shape=(0, 1))
         
-        for nth_gen in range(self.generation_num):
+        for nth_gen in range(self.n_generation):
             for indiv_idx in range(self.population_size): 
                 r1, r2 = np.random.rand(2)
+                # r1 = np.random.rand(self.n_dim)
+                # r2 = np.random.rand(self.n_dim)
                 velocity_cognitive = self.c1*r1*(particle_indiv_best[indiv_idx] - population[indiv_idx])
                 velocity_social = self.c2*r2*(best - population[indiv_idx])
                 velocity[indiv_idx] = self.alfa*velocity[indiv_idx] + velocity_cognitive + velocity_social
@@ -101,7 +104,7 @@ class PSO(object):
                 if self.termination.meet_criterion(population, fitness, best_idx, nth_gen):
                     break
             if self.decay:
-                self.alfa = (self.alfa_max - self.alfa_min) * ((nth_gen + 1) / self.generation_num)
+                self.alfa = (self.alfa_max - self.alfa_min) * ((nth_gen + 1) / self.n_generation)
 
 
                 
@@ -114,6 +117,10 @@ if __name__ == "__main__":
     optimiser = PSO(objective=fn, stopping_criterion='imp_avg_par')
     optimiser.termination.from_nth_gen = 50
     optimiser.termination.patience = 20
+    optimiser.c2 = 1
+    optimiser.c1 = 1
+    optimiser.alfa = 0.5
+    optimiser.decay = False
     optimiser.run()
     
     plt.yscale('log', base=2) 

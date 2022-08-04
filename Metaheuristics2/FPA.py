@@ -39,7 +39,7 @@ class FPA(object):
         self.min_bound = np.asarray([min(dim) for dim in self.search_space])
         self.max_bound = np.asarray([max(dim) for dim in self.search_space])
         self.dim_range = np.fabs(self.min_bound - self.max_bound)
-        self.n_dim = objective.dim_num
+        self.n_dim = objective.n_dim
         
         self.population_size = population_size
         self.n_generation = n_generation

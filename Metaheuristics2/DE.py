@@ -392,19 +392,22 @@ if __name__ == "__main__":
     # mutation(*M.subvariant_fn_args(population, indiv_idx, best_idx))
     
     import matplotlib.pyplot as plt
-    from ObjectiveFunctions import Beale, Rastrigin
+    from ObjectiveFunctions import Beale, Rastrigin, two_equations_two_unknown
     from StoppingCriterion import ImpBestObj
-    fn = Rastrigin(2)  
-    optimiser = OBDE(objective=fn, stopping_criterion='imp_best_obj', de_type='DE/best/2/bin')
+    # fn = Rastrigin(2)
+    fn = two_equations_two_unknown()
+    # optimiser = OBDE(objective=fn, stopping_criterion='imp_best_obj', de_type='DE/best/2/bin')
+    optimiser = DE(objective=fn, stopping_criterion='imp_best_obj', de_type='DE/best/2/bin')
     optimiser.termination.from_nth_gen = 50
     optimiser.termination.patience = 20
     optimiser.run()
     
     plt.yscale('log', base=2) 
     plt.plot(optimiser.best_fitness)
-    plt.legend()    
+    plt.legend()
     
     # optimiser.n_dim
+    optimiser.best_par[-1]
     # optimiser.best_fitness
     # optimiser.termination.metric_list
     # optimiser.termination.check_list
