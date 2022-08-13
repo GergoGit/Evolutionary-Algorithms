@@ -48,9 +48,10 @@ class Rastrigin(object):
     
 class two_equations_two_unknown(object):
     """
+    equations:
      2*x1 + 1*x2 = 7
     -6*x1 + 2*x2 = 4
-    
+    solution:
     x1=1
     x2=5
     """
@@ -63,8 +64,8 @@ class two_equations_two_unknown(object):
     def evaluate(self, x):
         coef = np.array([[2, 1], [-6, 2]])
         z = np.dot(coef, x)
-        dif = np.sum(np.abs(np.array([7, 4], dtype=np.float32) - z))
-        return dif
+        loss = np.sum(np.abs(np.array([7, 4], dtype=np.float32) - z))
+        return loss
     
 
 # TODO: correct Michalewicz    

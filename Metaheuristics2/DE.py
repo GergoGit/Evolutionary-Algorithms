@@ -178,7 +178,7 @@ class DE(object):
                  mutation_factor=0.8, 
                  crossover_prob=0.7, 
                  population_size=30, 
-                 generation_num=300):
+                 n_generation=300):
         
                 
         if stopping_criterion is not None:
@@ -198,7 +198,7 @@ class DE(object):
         self.mutation_factor = mutation_factor
         self.crossover_prob = crossover_prob
         self.population_size = population_size
-        self.generation_num = generation_num
+        self.n_generation = n_generation
         
         _, self.individual_selection_type, n_difference_vectors, self.crossover_type, = de_type.split("/")
         self.n_difference_vectors = int(n_difference_vectors)
@@ -243,7 +243,7 @@ class DE(object):
         self.best_par = np.empty(shape=(0, self.n_dim))
         self.best_fitness = np.empty(shape=(0, 1))
         
-        for nth_gen in range(self.generation_num):
+        for nth_gen in range(self.n_generation):
             
             for indiv_idx in range(self.population_size): 
                 
@@ -274,7 +274,7 @@ class OBDE(object):
                  crossover_prob=0.7,
                  jumping_rate=0.3,
                  population_size=30, 
-                 generation_num=300):
+                 n_generation=300):
         
                 
         if stopping_criterion is not None:
@@ -295,7 +295,7 @@ class OBDE(object):
         self.crossover_prob = crossover_prob
         self.jumping_rate = jumping_rate
         self.population_size = population_size
-        self.generation_num = generation_num
+        self.n_generation = n_generation
         
         _, self.individual_selection_type, n_difference_vectors, self.crossover_type, = de_type.split("/")
         self.n_difference_vectors = int(n_difference_vectors)
@@ -356,7 +356,7 @@ class OBDE(object):
         self.best_par = np.empty(shape=(0, self.n_dim))
         self.best_fitness = np.empty(shape=(0, 1))
         
-        for nth_gen in range(self.generation_num):
+        for nth_gen in range(self.n_generation):
             
             for indiv_idx in range(self.population_size): 
                 
@@ -397,9 +397,9 @@ if __name__ == "__main__":
     # fn = Rastrigin(2)
     fn = two_equations_two_unknown()
     # optimiser = OBDE(objective=fn, stopping_criterion='imp_best_obj', de_type='DE/best/2/bin')
-    optimiser = DE(objective=fn, stopping_criterion='imp_best_obj', de_type='DE/best/2/bin')
+    optimiser = DE(objective=fn, stopping_criterion='imp_best_obj', de_type='DE/best/1/bin')
     optimiser.termination.from_nth_gen = 50
-    optimiser.termination.patience = 20
+    optimiser.termination.patience = 30
     optimiser.run()
     
     plt.yscale('log', base=2) 
@@ -407,7 +407,7 @@ if __name__ == "__main__":
     plt.legend()
     
     # optimiser.n_dim
-    optimiser.best_par[-1]
+    print(optimiser.best_par[-1])
     # optimiser.best_fitness
     # optimiser.termination.metric_list
     # optimiser.termination.check_list
