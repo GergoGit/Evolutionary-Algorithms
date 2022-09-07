@@ -8,6 +8,7 @@ article:
 https://arxiv.org/pdf/2101.06599.pdf
 https://www.researchgate.net/publication/220403311_A_comparative_study_of_crossover_in_differential_evolution
 https://sci-hub.se/10.1016/j.swevo.2012.09.004
+https://sci-hub.se/10.1109/nafips.1996.534790
 https://www.sciencedirect.com/science/article/pii/S111001682100613X
 http://metahack.org/PPSN2014-Tanabe-Fukunaga.pdf
 https://www.researchgate.net/figure/Exponential-crossover-pseudo-code_fig1_220176034
